@@ -1,0 +1,244 @@
+﻿--| Game interface for STALK-IRC
+--| Last modified: Mar 6, '15
+--| By: TKGP
+
+local UPDATEINTERVAL	= 1000						-- Time between file checks in milliseconds
+local INPATH			= getFS():update_path( "$fs_root$", "" ).."\\STALK-IRC_input.txt"
+local OUTPATH			= getFS():update_path( "$fs_root$", "" ).."\\STALK-IRC_output.txt"
+local INPUTREGEX		= "([^/]+)/([^/]+)/(.+)"	-- Regular expression for parsing input
+local ssVer				= script_server_object_version()
+game					= ( ssVer >= 12 and "CoP" ) or ( ssVer >= 8 and "CS" ) or
+							( ssVer == 7 and bind_actor ~= nil and "LA" ) or ( ssVer <= 7 and bind_stalker ~= nil and "SoC" )
+local lastUpdate		= 0
+local spawned			= false						-- Extra logic on first update
+local disable			= false						-- In case of errors, shut down everything
+local timeout			= 5000						-- Default duration of news messages
+local chatKey			= DIK_keys.DIK_APOSTROPHE	-- Default key to trigger chat box UI
+local muhAtmospheres	= false						-- Disables IRC underground
+local atmosphericLevels								-- List of interior levels, filled out below
+
+function onUpdate()
+	if disable then return end
+	if time_global() < lastUpdate + UPDATEINTERVAL then return end
+	lastUpdate = time_global()
+	
+	-- Could just be a callback from net_spawn but less hooks is more better
+	if not spawned then
+		spawned = true
+		if game == "SoC" then
+			sendOutput( "1/_/_" )
+		else
+			local output = io.open( OUTPATH, "w" )
+			if not output then
+				giveNews( "Information", "Failed to open output file; STALK-IRC is now disabled. Try running the game as Administrator." )
+				disable = true
+				return
+			end
+			output:write( "1/_/_\r\n" )
+			output:close()
+		end
+	end
+	
+	local fileText = ""
+	if game == "SoC" then
+		local config = ini_file( "misc\\stalk_irc.ltx" )
+		for lineNumber = 0, config:line_count( "messages" ) do
+			local _, _, line = config:r_line( "messages", lineNumber, "", "" )
+			fileText = fileText..line:sub( 2, #line - 1 ).."\n"
+		end
+		local fileSystem = getFS()
+		local path = fileSystem:update_path( "$game_config$", "" )
+		fileSystem:file_copy( path.."misc\\stalk_irc_clear.ltx", path.."misc\\stalk_irc.ltx" )
+	else
+		local success = false
+		while not success do
+			local count = 0
+			local input
+			while not input do
+				if count > 100 then
+					giveNews( "Information", "Input read timed out; STALK-IRC is now disabled. Try running the game as Administrator." )
+					disable = true
+					return
+				end
+				count = count + 1
+				input = io.open( INPATH, "r" )
+			end
+			fileText = input:read( "*a" )
+			input:close()
+			input = io.open( INPATH, "w" )
+			if input then
+				input:close()
+				success = true
+			end
+		end
+	end
+	for line in fileText:gmatch( "[^\n]+" ) do
+		local action, arg1, arg2 = line:match( INPUTREGEX )
+		if action == "1" then
+			if arg1 == "timeout" then
+				timeout = tonumber( arg2 )
+			elseif arg1 == "chatkey" then
+				chatKey = DIK_keys[ arg2 ]
+			elseif arg1 == "atmospheres" then
+				muhAtmospheres = arg2 == "True"
+			end
+		elseif action == "2" and not ( muhAtmospheres and atmosphericLevels[ level.name() ] ) then
+			local faction, gameIcon, message = arg2:match( "([^/]+)/([^/]+)/(.+)" )
+			gameIcon = gameIcon:upper()
+			-- Consistent random portraits per name; yeah, I know this is pretty bullshit but randomseed in Lua 5.1 is all kinds of janked up
+			local oldRandom = math.random()
+			local seed = 0
+			for _, charValue in ipairs( { arg1:byte( 1, #arg1 ) } ) do
+				seed = seed + charValue
+			end
+			seed = seed / #arg1
+			seed = math.floor( ( seed - math.floor( seed ) ) * 10000 )
+			math.randomseed( seed )
+			local icon
+			if arg1 == "TKGP" or arg1 == "Toshka_Gospod" then -- :^)
+				icon = stalk_irc_icons.tkgp[ gameIcon ]
+			elseif arg1 ~= "Information" then
+				icon = stalk_irc_icons[ faction ][ math.random( #stalk_irc_icons[ faction ] ) ][ gameIcon ]
+			end
+			math.randomseed( oldRandom )
+			giveNews( arg1:gsub( "_", " " ), message, icon )
+		end
+	end
+end
+
+function onDeath( killedBy )
+	if disable or ( muhAtmospheres and atmosphericLevels[ level.name() ] ) then return end
+	local section = killedBy:section()
+	local config = system_ini()
+	local class = config:section_exist( section ) and config:line_exist( section, "class" ) and config:r_string( section, "class" ) or section
+	if class == "AI_STL_S" then
+		class = killedBy:character_community()
+	end
+	sendOutput( "3/"..class.."/"..level.name().."/"..game )
+end
+
+function onKeypress( keyCode )
+	if disable then return end
+	if level.present() and keyCode == chatKey then
+		get_console():execute( "main_menu off" )
+		if muhAtmospheres and atmosphericLevels[ level.name() ] then
+			giveNews( "Information", "Unable to connect to the network." )
+			return
+		end
+		if game == "CoP" then
+			chatInputWindow():ShowDialog(true)
+		else
+			level.start_stop_menu( chatInputWindow(), true )
+		end
+	end
+end
+
+function giveNews( title, message, icon )
+	if not icon then
+		icon = stalk_irc_icons.info
+	end
+	if game == "SoC" or game == "LA" then
+		db.actor:give_game_news( title.."\\n"..message, "ui\\stalk_irc_icons", icon, 0, timeout )
+	else
+		db.actor:give_game_news( title, message, icon, 0, timeout )
+	end
+end
+
+function sendOutput( message )
+	if game == "SoC" then
+		local console = get_console()
+		-- RIP in peace capital letters
+		console:execute( "load ~#stalk-irc "..message )
+		console:execute( "flush" )
+	else
+		local count = 0
+		local output
+		while not output do
+			if count > 100 then
+				giveNews( "Information", "Output write timed out; STALK-IRC is now disabled. Try running the game as Administrator." )
+				disable = true
+				return
+			end
+			count = count + 1
+			output = io.open( OUTPATH, "a" )
+		end
+		output:write( message.."\n" )
+		output:close()
+	end
+end
+
+--------------------------------------------------
+		
+class "chatInputWindow" ( CUIScriptWnd )
+
+function chatInputWindow:__init( owner ) super()
+	self.owner = owner
+	self:InitControls()
+	self:InitCallBacks()
+end
+
+function chatInputWindow:__finalize()
+end
+
+function chatInputWindow:InitControls()
+	if game == "SoC" or game == "LA" then
+		self:Init( 0, 0, 1024, 768 )
+	else
+		self:SetWndRect( Frect():set( 0, 0, 1024, 768 ) )
+	end
+	local xml = CScriptXmlInit()
+	xml:ParseFile( "ui_chatinput.xml" )
+	
+	self.editBox = xml:InitEditBox( "edit_box", self )
+	self:Register( xml:Init3tButton( "button_send", self ), "button_send" )
+	self:Register( xml:Init3tButton( "button_close", self ), "button_close" )
+end
+
+function chatInputWindow:InitCallBacks()
+	self:AddCallback( "button_send",	ui_events.BUTTON_CLICKED,	self.onSend,	self)
+	self:AddCallback( "button_close",	ui_events.BUTTON_CLICKED,	self.onCancel,	self)
+end
+
+function chatInputWindow:OnKeyboard( dik, keyboard_action )
+	CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if dik == DIK_keys.DIK_RETURN or dik == DIK_keys.DIK_NUMPADENTER then
+			self:onSend()		
+		elseif dik == DIK_keys.DIK_ESCAPE then
+			self:onCancel()
+		end
+	end
+	return true
+end
+
+function chatInputWindow:onSend()
+	local chatInput = self.editBox:GetText()
+	if chatInput and chatInput ~= "" then
+		self.editBox:SetText( "" )
+		self.editBox:Show( true )
+		sendOutput( "2/_/"..game.."/"..chatInput )
+	end
+end
+
+function chatInputWindow:onCancel()
+	if game == "CoP" then
+		self:HideDialog()
+	else
+		self:GetHolder():start_stop_menu( self, true )
+	end
+end
+
+--------------------------------------------------
+
+atmosphericLevels = {
+	l03u_agr_underground	= true,
+	l04u_labx18				= true,
+	l08u_brainlab			= true,
+	l10u_bunker				= true,
+	l12u_sarcofag			= true,
+	l12u_control_monolith	= true,
+	agroprom_underground	= true,
+	hospital				= true,
+	jupiter_underground		= true,
+	labx8					= true,
+	}

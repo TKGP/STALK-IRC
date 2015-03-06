@@ -1,0 +1,435 @@
+--[[ ----------------------------------------------------------------------------------------------
+ File       : bind_actor.script
+ Description: Actor Binder
+ Copyright  : 2004 © GSC Game World
+ Author     : Game World & LA-team
+ Editors    : barin, gr1ph00n, SkyLoader, vintar
+ Last edit  : 15.04.2013 [vintar]
+--]] ----------------------------------------------------------------------------------------------
+
+--/ -----------------------------------------------------------------
+--/ VARIABLEs
+--/ -----------------------------------------------------------------
+local binder = nil
+local weapon_hide  = false --/ global flag "weapon should be removed"
+local weapon_need_hide = nil --/ dynamic flag "weapon should be removed"
+local game_difficulty_by_num = {
+	[0] = "gd_novice",
+	[1] = "gd_stalker",
+	[2] = "gd_veteran",
+	[3] = "gd_master"
+}
+-----------------------------
+local sModule = script_name()
+--/ -----------------------------------------------------------------
+local log = function(fmt,...) _G.log(sModule..":"..tostring(fmt),...) end
+--/ -----------------------------------------------------------------
+--/ Actor binding ('obj' - game object)
+--/ -----------------------------------------------------------------
+function bind(obj)
+	obj:bind_object( get_binder(obj) )
+end
+function get_binder(obj)
+	if not binder and obj then
+		_G.idActor = obj:id() --/ (re)registering of actor-ID
+		binder = this.actor_binder(obj)
+	end
+	return binder --/>
+end
+--/ -------------------------
+--/ CLASS CONSTRUCTOR
+--/ -----------------------------------------------------------------------------------------------
+class "actor_binder" (object_binder)
+--/------------------------------------------------------------------------------------------------
+function actor_binder:__init(obj) super(obj)
+	self.is_start = false
+	self.time_upd = 0
+	self.cnt_upd  = 0
+	self.loaded_active_slot = -1
+	event("actor_bind"):once(true):trigger() --/#!#>
+end
+
+function actor_binder:reinit()
+	object_binder.reinit(self)
+	
+	db.storage[idActor] = {}
+	self.st = db.storage[idActor]
+	event("actor_stor"):once(true):trigger() --/#!#> event: initializing actor 'storage'
+	self:set_callbacks()
+end
+
+function actor_binder:net_spawn(se_obj)
+	if not has_info("cutscene_started") then
+		level.show_indicators() --seems sr_cutscene leaks when load any save during playing start cutscene
+	end
+	
+	self.is_start = true
+	weapon_hide   = false
+	weapon_need_hide = nil
+	
+	if object_binder.net_spawn(self, se_obj) == false then
+		return false
+	end
+	
+	db.add_actor(self.object)
+	event("actor_spawn"):once(true):trigger({actor=self.object,binder=self,se_actor=se_obj}) --/#!#>> 'presets'
+	if not self.st.disable_input_time then
+		level.enable_input()
+	end
+	
+	if actor_stats.add_to_ranking then
+		actor_stats.add_to_ranking(idActor)
+	end
+	
+	event("actor_spawned"):once(true):trigger({actor=self.object,binder=self,se_actor=se_obj}) --/#!#>
+	return true
+end
+
+function actor_binder:net_destroy()
+	if actor_stats.remove_from_ranking ~= nil then
+		actor_stats.remove_from_ranking(idActor)
+	end
+	
+	db.del_actor(self.object)
+	
+	sr_light.clean_up()
+	xr_sound.stop_all_sound_object()
+	
+	event("actor_destroy"):trigger() --/#!#>
+	self:clear_callbacks()
+	
+	object_binder.net_destroy(self)
+end
+
+function actor_binder:update(delta)
+	stalk_irc.onUpdate()
+	object_binder.update(self, delta)
+	
+	xr_sound.update_actor()
+	
+	if self.st.disable_input_time and Get_PastSeconds(self.st.disable_input_time) >= (self.st.disable_input_idle or 0) then
+		level.enable_input()
+		self.st.disable_input_time = nil
+		self.st.disable_input_idle = nil
+	end
+	
+	if self.st.sleep_relocate_time and
+		 game.get_game_time():diffSec(self.st.sleep_relocate_time) >= self.st.sleep_relocate_idle
+		then
+		self.object:set_actor_position(self.st.sleep_relocate_point)
+		local dir = self.st.sleep_relocate_point:sub(self.st.sleep_relocate_look)
+		self.object:set_actor_direction(dir:getH())
+		self.st.sleep_relocate_time = nil
+	end
+	
+	if weapon_hide or self.object:is_talking() then
+		self.weapon_hided = self.object:is_weapon_hidden()
+		if not self.weapon_hided then
+			self.object:hide_weapon()
+		end
+	elseif weapon_need_hide ~= nil then --/ if weapon need to be hidden or in hands:
+		if weapon_need_hide then --/ hide:
+			if self.object:is_weapon_hidden() then
+				weapon_need_hide = nil --/ weapon already hidden
+			else
+				self.object:hide_weapon()
+			end
+		else --/ в руки:
+			if self.object:is_weapon_hidden() then
+				self.object:restore_weapon()
+			else
+				weapon_need_hide = nil --/ weapon in hands
+			end
+		end
+	elseif self.weapon_hided then
+		self.object:restore_weapon()
+		self.weapon_hided = nil
+	end
+	
+	local iTime = time_global()
+	--/ check: periodic check: ~5 time per sec
+	if self.time_upd > iTime then
+		self.time_upd = iTime + 200
+		--/ check: output of msg about huge radiation:
+		if self.object.radiation >= 0.7 then
+			if not self.hud_rad then
+				self.hud_rad = get_hud()
+				if not self.hud_rad:GetCustomStatic("cs_radiation_danger") then
+					self.hud_rad:AddCustomStatic("cs_radiation_danger", true)
+					self.hud_rad:GetCustomStatic("cs_radiation_danger"):wnd():SetTextST("st_radiation_danger")
+				end
+			end
+		elseif self.hud_rad then
+			self.hud_rad:RemoveCustomStatic("cs_radiation_danger")
+			self.hud_rad = nil
+		end
+	end
+	if self.is_start then
+		self.is_start = false
+		if self.object:dont_has_info("storyline_actor_start") and level.name() == "la01_escape" then
+			self.object:give_info_portion("storyline_actor_start")
+			level.hide_indicators() --if not set there it leaks for saves
+			_G.g_start_avi = true
+		end
+		if self.object:dont_has_info("global_dialogs") then
+			self.object:give_info_portion("global_dialogs")
+		end
+		if self.object:dont_has_info("level_changer_icons") then
+			self.object:give_info_portion("level_changer_icons")
+		end
+		level_tasks.add_lchanger_location()
+		self.object:activate_slot(self.loaded_active_slot or -1)
+		event("update_1st"):once(true):trigger({time=iTime,delta=delta,binder=self}) --/#!#>
+		local lname = GetVar("lname","la01_escape")
+		if level.name() ~= lname then
+			SetVar("lname", level.name())
+			event("level_change"):trigger()
+		end
+	end
+
+	--/SkyLoader: Showing debug infoportions
+	--la_dbg.UpdateInfos()
+
+	event("actor_update"):trigger({delta=delta,time=iTime,binder=self}) --/#!#>
+end
+--/ -----------------------------------------------------------------
+--/ SAVE
+--/ -----------------------------------------------------------------
+function actor_binder:save(packet)
+	--debug_print( string.rep("~",64) ) --/#~#
+	--/ game difficulty (0...4) ------------
+	SetVar("game_difficulty",level.get_game_difficulty())
+	--/ record to net_packet of actor ----------------
+	local sz_0 = packet:w_tell() --/ for debug
+	set_save_marker(packet, "save", false, "actor")
+	object_binder.save(self, packet)
+	--/ data about disabled input ---------------
+	local diffSec = 0
+	if self.st.disable_input_time then
+		diffSec = self.st.disable_input_idle - Get_PastSeconds(self.st.disable_input_time)
+	end
+	packet:w_u32(math.max(0,diffSec)) --/ time (game sec) of disabled input
+	--/ active slot --------------------------
+	self.loaded_active_slot = self.object:active_slot()
+	if self.loaded_active_slot > 11 then self.loaded_active_slot = -1 end
+	packet:w_s8(self.loaded_active_slot)
+	-------------- blowout & psi storm ----------
+	psi_storm_manager.save(packet)
+	surge_manager.save(packet)
+	--/ pstor actor ------------------------------
+	xr_statistic.save()
+	xr_logic.pstor_save_all(self.object, packet)
+	local size = set_save_marker(packet, "save", true, "actor")
+	--/ finalize ----------------------------------
+	--debug_print(string.format("Save(actor): Size=[%d]=[%d+%d], game difficulty=[%d]", sz_0+size, sz_0, size, level.get_game_difficulty())) --/#~#
+	event("actor_save"):trigger() --/#!#> event: 'saving actor data finished'
+	--debug_print( string.rep("~",64) ) --/#~#
+end
+--/ -----------------------------------------------------------------
+--/ LOAD
+--/ -----------------------------------------------------------------
+function actor_binder:load(reader)
+	--/ level of game difficulty (0...4) ------------
+	local game_difficulty = GetVar("game_difficulty", 0) --/ from storehouse
+	if game_difficulty < 0 or game_difficulty > 3 then game_difficulty = 0 end
+	get_console():execute("g_game_difficulty " .. game_difficulty_by_num[game_difficulty])
+	--/ reading from net_packet of actor -------------
+	set_save_marker(reader, "load", false, "actor")
+	object_binder.load(self, reader)
+	if reader:r_eof() then abort("SAVE_FILE_IS_CORRUPT") end
+	local sz_0 = reader:r_tell() --/ for debug
+	--/ data about disabled input ---------------
+	local diffSec = reader:r_u32()
+	if diffSec > 0 then
+		self.st.disable_input_idle = diffSec --/< game-sec
+		self.st.disable_input_time = game.get_game_time()
+	end
+	--/ active slot -----------------------------
+	self.loaded_active_slot = reader:r_s8()
+	if self.loaded_active_slot > 11 or self.loaded_active_slot == 5 then self.loaded_active_slot = -1 end
+	-------------- blowout & psi storm ----------
+	psi_storm_manager.load(reader)
+	surge_manager.load(reader)
+	--/ pstor актора ------------------------------
+	xr_statistic.load()
+	xr_logic.pstor_load_all(self.object, reader)
+	local size = set_save_marker(reader, "load", true, "actor")
+	--/ finalize ----------------------------------
+	--debug_print(string.format("Load(actor): Size=[%d]=[%d+%d], game difficulty=[%d]", sz_0+size, sz_0, size, game_difficulty)) --/#~#
+	event("actor_load"):once(true):trigger() --/#!#> event: 'loading of actor data finished'
+end
+--/------------------------------------------------------------------
+--/ CALLBACKs
+--/------------------------------------------------------------------
+function actor_binder:set_callbacks()
+	self.object:set_callback(callback.inventory_info,      self.info_callback,      self)
+	self.object:set_callback(callback.article_info,        self.article_callback,   self)
+	self.object:set_callback(callback.on_item_take,        self.on_item_take,       self)
+	self.object:set_callback(callback.on_item_drop,        self.on_item_drop,       self)
+	self.object:set_callback(callback.trade_sell_buy_item, self.on_trade,           self)
+	self.object:set_callback(callback.task_state,          self.task_callback,      self)
+	self.object:set_callback(callback.take_item_from_box,  self.take_item_from_box, self)
+	self.object:set_callback(callback.use_object,          self.on_use_item,        self) --/#+#
+	self.object:set_callback(callback.death,               self.on_actor_death,     self) --/#+#
+	self.object:set_callback(callback.hit,                 self.hit_callback,       self) --/#+# by Ghost
+	--/#+# gr1ph
+	self.object:remove_fast_update()
+	self.object:set_fast_update(self.fastcall, self)
+	--/#+# SkyLoader (EngineBuildId() > 5106)
+	self.object:set_callback(callback.on_move_to_slot,     self.on_move_to_slot_callback, self)
+	self.object:set_callback(callback.on_move_to_belt,     self.on_move_to_belt_callback, self)
+	self.object:set_callback(callback.on_move_to_ruck,     self.on_move_to_ruck_callback, self)
+	self.object:set_callback(callback.on_button_press,     self.key_press_callback,   self)
+	self.object:set_callback(callback.on_button_hold,      self.key_hold_callback,    self)
+	self.object:set_callback(callback.on_button_release,   self.key_release_callback, self)
+	-- gr1ph: 5312
+	--self.object:set_callback(callback.actor_hud_anim_starts,   self.on_hud_anim_starts, self) --#-#skyloader: disabled, sarcofag is already checked
+	--self.object:set_callback(callback.actor_hud_anim_ends,     self.on_hud_anim_ends, self)
+end
+
+function actor_binder:clear_callbacks()
+	self.object:set_callback(callback.inventory_info,     nil)
+	self.object:set_callback(callback.article_info,       nil)
+	self.object:set_callback(callback.on_item_take,       nil)
+	self.object:set_callback(callback.on_item_drop,       nil)
+	self.object:set_callback(callback.trade_sell_buy_item, nil)
+	self.object:set_callback(callback.task_state,         nil)
+	self.object:set_callback(callback.take_item_from_box, nil)
+	self.object:set_callback(callback.use_object,         nil) --/#+#
+	self.object:set_callback(callback.death,              nil) --/#+#
+	self.object:set_callback(callback.hit,                nil) --/#+#
+	self.object:remove_fast_update() --/#+#
+	self.object:set_callback(callback.on_move_to_slot,    nil) --/#+#
+	self.object:set_callback(callback.on_move_to_belt,    nil) --/#+#
+	self.object:set_callback(callback.on_move_to_ruck,    nil) --/#+#
+	self.object:set_callback(callback.actor_hud_anim_starts,    nil)
+	self.object:set_callback(callback.actor_hud_anim_ends, 		nil) 
+	--/ don't disable, cause after actor death can work keyloggers
+	--self.object:set_callback(callback.on_button_press,    nil) --/#+#
+	--self.object:set_callback(callback.on_button_hold,     nil) --/#+#
+	--self.object:set_callback(callback.on_button_release,  nil) --/#+#
+end
+
+--/#+# from CLevel::OnFrame --/#?# For what is it (not seen been used)?
+function actor_binder:fastcall()
+	event("fastcall"):trigger() --/#!#>
+end
+
+function actor_binder:on_hud_anim_starts(_object, _state, _anim_time)
+	event("actor_hud_anim_starts"):trigger({object = _object, state = _state, anim_time = _anim_time})
+	--log("actor_binder:on_hud_anim_starts name='%s' state='%d' at='%d'", _object:name(), _state, _anim_time)
+end
+
+function actor_binder:on_hud_anim_ends(_object, _state)
+	event("actor_hud_anim_ends"):trigger({object = _object, state = _state})
+	--log("actor_binder:on_hud_anim_ends name='%s' state='%d'", _object:name(), _state)
+end
+
+function actor_binder:info_callback(oActor, sInfoId)
+	event("actor_info"):trigger({actor=oActor, info_id=sInfoId, info=sInfoId}) --/#!#>
+end
+
+function actor_binder:article_callback(npc, group, name)
+	event("actor_article"):trigger({group=group, name=name})
+end
+
+function actor_binder:task_callback(oTask, oObjective, iTaskState)
+	event("actor_task"):trigger({task=oTask, objective=oObjective, state_idx=iTaskState}) --/#!#>
+end
+
+function actor_binder:on_trade(oItem, bSellBye, iMoney, ...)
+	event("actor_trade"):trigger({item=oItem,sell=bSellBye,money=iMoney}) --/#!#>
+end
+
+function actor_binder:take_item_from_box(oBox, oItem)
+	event("item_take_from_box"):trigger({box=oBox,item=oItem, box_id=oBox:id(),item_id=oItem:id()}) --/#!#>
+end
+
+function actor_binder:on_item_take(oItem)
+	local sSection = oItem:section()
+	if not self.is_start then --/ skipping when loading game --and not sSection:match("fake")
+		level_tasks.proceed(oItem, "item_take")
+		event("item_take"):trigger({item=oItem,item_id=oItem:id(),section=sSection}) --/#!#>
+	end
+end
+
+function actor_binder:on_item_drop(oItem)
+	--if db.bGameLoaded and self.tmr_drop <= time_global() then
+		local sSection = oItem:section()
+		if not sSection:match("fake") then
+			level_tasks.proceed(oItem, "item_drop")
+			event("item_drop"):trigger({item=oItem,item_id=oItem:id(),section=sSection}) --/#!#>
+			--self.tmr_drop = time_global() + 50 --/ pause trigger of loosing item (filter 0.05s)
+		end
+	--end
+end
+
+function actor_binder:on_use_item(oItem)
+	--if db.bGameLoaded and self.tmr_use <= time_global() then
+		local sSection = oItem:section()
+		if not sSection:match("fake") then
+			event("item_use"):trigger({item=oItem,item_id=oItem:id(),section=sSection}) --/#!#>
+			--self.tmr_use = time_global() + 50 --/ pause trigger of using item (filter 0.05s)
+		end
+	--end
+end
+
+function actor_binder:on_actor_death(victim, who)
+	stalk_irc.onDeath( who )
+	event("actor_death"):trigger({victim=self.object,who=who}) --/#!#>
+end
+
+function actor_binder:hit_callback(obj, amount, local_direction, who, bone_index)
+--	log("hit_callback:NPC=[%s],Who=[%s],amount=[%d],dir=[%s],bone=[%d]", obj:name(), who and who:name(), string.short(amount), local_direction, bone_index, "") --/#~#
+	event("actor_hit"):trigger({victim=self.object,who=who,bone=bone_index,amount=amount,dir=local_direction}) --/#!#>
+end
+
+--/ item moved to slot
+function actor_binder:on_move_to_slot_callback(item)
+--	log("on_move_to_slot_callback: item_section=[%s]", item:section(), "") --/#~#
+	event("item_to_slot"):trigger({item=item})
+end
+--/ item moved to belt
+function actor_binder:on_move_to_belt_callback(item)
+--	log("on_move_to_belt_callback:itemj_section=[%s]", item:section(), "") --/#~#
+	event("item_to_belt"):trigger({item=item})
+end
+--/ item moved to rucksack
+function actor_binder:on_move_to_ruck_callback(item)
+--	log("on_move_to_ruck_callback: item_section=[%s]", item:section(), "") --/#~#
+	event("item_to_ruck"):trigger({item=item})
+end
+
+--/ pressing buttton
+function actor_binder:key_press_callback(obj, vkey_code)
+--	log("key_press_callback: obj=[%s], dik=[%d]", obj:name(), vkey_code, "") --/#~#
+	event("on_key_press"):trigger({dik=vkey_code,bind=dik_to_bind(vkey_code)})
+end
+--/ holding button
+function actor_binder:key_hold_callback(obj, vkey_code)
+--	log("key_hold_callback: dik=[%d]", vkey_code, "") --/#~#
+	event("on_key_hold"):trigger({dik=vkey_code,bind=dik_to_bind(vkey_code)})
+end
+--/ releasing button
+function actor_binder:key_release_callback(obj, vkey_code)
+--	log("key_release_callback: dik=[%d]", vkey_code, "") --/#~#
+	event("on_key_free"):trigger({dik=vkey_code,bind=dik_to_bind(vkey_code)})
+end
+--/ -----------------------------------------------------------------------------------------------
+--/ HELPERs
+--/ -----------------------------------------------------------------------------------------------
+function hide_weapon(need_hide) --/< from sr_no_weapon.script
+	weapon_hide = (need_hide == true)
+end
+--/#x# rudiment!
+function restore_weapon() --/< from sr_no_weapon.script
+	weapon_hide = false
+end
+
+function actor_hide_weapon()
+	weapon_need_hide = true
+end
+function actor_restore_weapon()
+	weapon_need_hide = false
+end
+--/ -----------------------------------------------------------------------------------------------
