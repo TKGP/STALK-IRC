@@ -312,7 +312,6 @@ namespace STALK_IRC.Properties {
         }
         
         /// <summary>
-<<<<<<< HEAD
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] stalkIRCIcons {
@@ -368,23 +367,12 @@ namespace STALK_IRC.Properties {
         ///--| Last modified: Mar 6, &apos;15
         ///--| By: TKGP
         ///
-=======
-        ///   Looks up a localized string similar to --| Game interface for STALK-IRC
-        ///--| Last modified: Feb 26, &apos;15
-        ///--| By: TKGP
-        ///
-        ///local CHATKEY			= DIK_keys.DIK_APOSTROPHE	-- Key to trigger chat box UI
->>>>>>> origin/master
         ///local UPDATEINTERVAL	= 1000						-- Time between file checks in milliseconds
         ///local INPATH			= getFS():update_path( &quot;$fs_root$&quot;, &quot;&quot; )..&quot;\\STALK-IRC_input.txt&quot;
         ///local OUTPATH			= getFS():update_path( &quot;$fs_root$&quot;, &quot;&quot; )..&quot;\\STALK-IRC_output.txt&quot;
         ///local INPUTREGEX		= &quot;([^/]+)/([^/]+)/(.+)&quot;	-- Regular expression for parsing input
-<<<<<<< HEAD
         ///local ssVer				= script_server_object_version()
         ///game					= ( ssVer &gt;= 12 and &quot;CoP&quot; ) or ( ssVer &gt;= 8 a [rest of string was truncated]&quot;;.
-=======
-        ///local ssVer				= script_serve [rest of string was truncated]&quot;;.
->>>>>>> origin/master
         /// </summary>
         internal static string stalkIRCScript {
             get {

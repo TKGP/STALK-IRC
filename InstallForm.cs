@@ -28,15 +28,11 @@ namespace STALK_IRC
                 {
                     string configPath = path + @"\gamedata" + ((radioButton3.Checked || radioButton4.Checked) ? @"\config" : @"\configs");
                     string scriptPath = path + @"\gamedata\scripts";
-<<<<<<< HEAD
                     string texturePath = path + @"\gamedata\textures\ui";
-=======
->>>>>>> origin/master
                     if (!Directory.Exists(configPath + @"\ui"))
                         Directory.CreateDirectory(configPath + @"\ui");
                     if (!Directory.Exists(scriptPath))
                         Directory.CreateDirectory(scriptPath);
-<<<<<<< HEAD
                     if (!Directory.Exists(texturePath))
                         Directory.CreateDirectory(texturePath);
                     File.WriteAllText(configPath + @"\ui\ui_chatinput.xml", Resources.chatInputUIXML);
@@ -50,10 +46,6 @@ namespace STALK_IRC
                             Directory.CreateDirectory(configPath + @"\ui\textures_descr");
                         File.WriteAllText(configPath + @"\ui\textures_descr\ui_stalk_irc_icons.xml", Resources.stalkIRCIconsXML);
                     }
-=======
-                    File.WriteAllText(configPath + @"\ui\ui_chatinput.xml", Resources.chatInputUIXML);
-                    File.WriteAllText(scriptPath + @"\stalk_irc.script", Resources.stalkIRCScript);
->>>>>>> origin/master
 
                     // Patching ui_main_menu.script
                     if (File.Exists(scriptPath + @"\ui_main_menu.script"))
@@ -86,15 +78,9 @@ namespace STALK_IRC
                                 string function = callbackMatch.Groups[1].Value;
                                 Match functionMatch = Regex.Match(script, @"function\s+actor_binder\s*:\s*" + function + @"\(([^\)]+)\)");
                                 string arguments = functionMatch.Groups[1].Value.Trim();
-<<<<<<< HEAD
                                 if (arguments.Contains(','))
                                 {
                                     string argument = Regex.Match(arguments, @",\s*([^\s]+)\s*").Groups[1].Value;
-=======
-                                if(arguments.Contains(','))
-                                {
-                                    string argument = Regex.Match(arguments,@",\s*([^\s]+)\s*").Groups[1].Value;
->>>>>>> origin/master
                                     script = script.Insert(functionMatch.Index + functionMatch.Length, "\r\n\tstalk_irc.onDeath( " + argument + " )");
                                 }
                                 else

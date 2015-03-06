@@ -41,11 +41,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.button1 = new System.Windows.Forms.Button();
-<<<<<<< HEAD
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.label1 = new System.Windows.Forms.Label();
-=======
->>>>>>> origin/master
             this.SuspendLayout();
             // 
             // textBox1
@@ -113,10 +110,7 @@
             // 
             // textBox4
             // 
-<<<<<<< HEAD
             this.textBox4.BackColor = System.Drawing.SystemColors.Window;
-=======
->>>>>>> origin/master
             this.textBox4.Location = new System.Drawing.Point(47, 418);
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(560, 20);
@@ -144,7 +138,6 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-<<<<<<< HEAD
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
@@ -163,19 +156,14 @@
             this.label1.TabIndex = 14;
             this.label1.Text = "Connecting...";
             // 
-=======
->>>>>>> origin/master
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(621, 480);
-<<<<<<< HEAD
             this.Controls.Add(this.label1);
             this.Controls.Add(this.linkLabel1);
-=======
->>>>>>> origin/master
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.textBox4);
@@ -209,11 +197,8 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button button1;
-<<<<<<< HEAD
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label label1;
-=======
->>>>>>> origin/master
     }
 }
 

@@ -6,10 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-<<<<<<< HEAD
 using System.Text.RegularExpressions;
-=======
->>>>>>> origin/master
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -27,11 +24,7 @@ namespace STALK_IRC
         private void Options_Load(object sender, EventArgs e)
         {
             textBox1.Text = parent.name;
-<<<<<<< HEAD
             comboBox1.SelectedItem = (string)Registry.GetValue(ClientForm.REGISTRY, "Faction", "Loners");
-=======
-            //comboBox1.SelectedItem = parent.faction;
->>>>>>> origin/master
             textBox2.Text = parent.timeout;
             comboBox2.SelectedItem = parent.chatKey;
             checkBox1.Checked = parent.sendDeaths;
@@ -74,11 +67,7 @@ namespace STALK_IRC
                 string name = textBox1.Text.Replace(' ', '_');
                 parent.name = name;
                 parent.irc.RfcNick(name);
-<<<<<<< HEAD
                 parent.faction = Regex.Replace(comboBox1.Text, " ", "");
-=======
-                //parent.faction = comboBox1.Text;
->>>>>>> origin/master
                 parent.timeout = textBox2.Text;
                 parent.SendCommandAll(1, "timeout", textBox2.Text);
                 parent.chatKey = comboBox2.Text;
@@ -90,11 +79,7 @@ namespace STALK_IRC
 
                 string registry = ClientForm.REGISTRY;
                 Registry.SetValue(registry, "Name", name);
-<<<<<<< HEAD
                 Registry.SetValue(registry, "Faction", comboBox1.Text);
-=======
-                //Registry.SetValue(registry, "Faction", comboBox1.Text);
->>>>>>> origin/master
                 Registry.SetValue(registry, "Timeout", textBox2.Text);
                 Registry.SetValue(registry, "ChatKey", comboBox2.Text);
                 Registry.SetValue(registry, "SendDeaths", checkBox1.Checked);

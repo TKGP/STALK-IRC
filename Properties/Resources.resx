@@ -119,7 +119,6 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="chatInputUIXML" type="System.Resources.ResXFileRef, System.Windows.Forms">
-<<<<<<< HEAD
     <value>..\Resources\ui_chatinput.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
   <data name="copBindStalker" type="System.Resources.ResXFileRef, System.Windows.Forms">
@@ -160,38 +159,5 @@
   </data>
   <data name="stalkIRCScript" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\stalk_irc.script;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-=======
-    <value>..\Resources\chatInputUIXML.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="copBindStalker" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\copBindStalker.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="copMainMenu" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\copMainMenu.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="csBindStalker" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\csBindStalker.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="csMainMenu" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\csMainMenu.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="laBindActor" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\laBindActor.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="laMainMenu" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\laMainMenu.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="socBindStalker" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\socBindStalker.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="socInputClear" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\socInputClear.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="socMainMenu" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\socMainMenu.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
-  </data>
-  <data name="stalkIRCScript" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\stalkIRCScript.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
->>>>>>> origin/master
   </data>
 </root>
