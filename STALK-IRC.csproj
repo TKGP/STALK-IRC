@@ -47,11 +47,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+=======
+>>>>>>> origin/master
     <Compile Include="STALKIRCStrings.cs" />
     <Compile Include="ClientForm.cs">
       <SubType>Form</SubType>
@@ -108,9 +111,20 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
+<<<<<<< HEAD
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+=======
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+>>>>>>> origin/master
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -120,6 +134,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+<<<<<<< HEAD
     <None Include="Resources\bind_actor[la].script" />
     <None Include="Resources\bind_stalker[cop].script" />
     <None Include="Resources\bind_stalker[cs].script" />
@@ -127,11 +142,14 @@
     <None Include="Resources\stalk_irc.script" />
     <None Include="Resources\stalk_irc_clear.ltx" />
     <None Include="Resources\stalk_irc_icons.script" />
+=======
+>>>>>>> origin/master
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Content Include="icon.ico" />
     <None Include="Resources\ui_chatinput.xml" />
     <None Include="Resources\ui_main_menu[cop].script" />
@@ -140,6 +158,42 @@
     <None Include="Resources\ui_main_menu[soc].script" />
     <None Include="Resources\ui_stalk_irc_icons.xml" />
     <None Include="Resources\stalk_irc_icons.dds" />
+=======
+    <None Include="Resources\chatInputUIXML.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\stalkIRCScript.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\copBindStalker.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\copMainMenu.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\csBindStalker.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\csMainMenu.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\laMainMenu.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\socMainMenu.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\socInputClear.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\socBindStalker.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\laBindActor.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon.ico" />
+>>>>>>> origin/master
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -27,8 +27,11 @@ namespace STALK_IRC
         {
             string levelText = (levelNames.ContainsKey(levelName) ? levelNames[levelName] : "");
             classType = classType.ToUpper();
+<<<<<<< HEAD
             if (classType == "DARK_STALKER" && rand.Next(1000) == 666) // :^)
                 return "Psssh... nothin personnel... kid...";
+=======
+>>>>>>> origin/master
             string deathText = (deaths.ContainsKey(classType) ? deaths[classType] : (RandomString(genericDeaths) + "(" + classType + ") "));
             return RandomString(times) + levelText + RandomString(observance) + name.Replace('_', ' ') + deathText + RandomString(suffixes);
         }
@@ -124,7 +127,11 @@ namespace STALK_IRC
             deaths["ZS_MINCE"] = deaths["ZS_GALAN"];
             deaths["ZS_RADIO"] = " stepped into an anomalous field. ";
             deaths["ZS_TORRD"] = " couldn't outrun a comet. ";
+<<<<<<< HEAD
             deaths["ZS_BFUZZ"] = " got tangled up in a burnt fuzz. ";	
+=======
+            //deaths["ZS_BFUZZ"] = "se_zone_visual";	
+>>>>>>> origin/master
             deaths["Z_MBALD"] = " triggered a land mine. ";
             deaths["Z_RADIO"] = deaths["ZS_RADIO"];
             //deaths["Z_ZONE"] = "cse_alife_anomalous_zone";
@@ -136,6 +143,7 @@ namespace STALK_IRC
             deaths["S_EXPLO"] = " was blown apart by an explosion. ";
             deaths["II_EXPLO"] = deaths["S_EXPLO"];
 
+<<<<<<< HEAD
             deaths["STALKER"] = " was gunned down by a loner. ";
             deaths["BANDIT"] = " was looted by a bandit. ";
             deaths["DOLG"] = " was removed by a Dutyer. ";
@@ -152,6 +160,8 @@ namespace STALK_IRC
             deaths["ARMY"] = deaths["MILITARY"];
             deaths["DARK_STALKER"] = " was killed by a deformed stalker. ";
 
+=======
+>>>>>>> origin/master
             // AMK
             deaths["TURRETMG"] = " went down in a hail of bullets. ";
 

@@ -20,20 +20,33 @@ namespace STALK_IRC
     public partial class ClientForm : Form
     {
         // Constants
+<<<<<<< HEAD
         const string VERSION = "Beta 11";
         const string SERVER = "irc.slashnet.org";
         const string CHANNEL = "#STALK-IRC_Testing";
+=======
+        const string VERSION = "Beta 10";
+        const string SERVER = "irc.slashnet.org";
+        const string CHANNEL = "#STALK-IRC";
+>>>>>>> origin/master
         const string INPUT = @"\STALK-IRC_input.txt";
         const string OUTPUT = @"\STALK-IRC_output.txt";
         const string SOCINPUT = @"\gamedata\config\misc\stalk_irc.ltx";
         const string SOCINPUTCLEAR = @"\gamedata\config\misc\stalk_irc_clear.ltx";
         public const string REGISTRY = @"HKEY_CURRENT_USER\Software\STALK-IRC";
         const string INPUTREGEX = "([^/]+)/([^/]+)/(.+)";
+<<<<<<< HEAD
         const char MAGIC = '☺';
 
         // Options
         public string name = (string)Registry.GetValue(REGISTRY, "Name", null);
         public string faction = Regex.Replace((string)Registry.GetValue(REGISTRY, "Faction", "Loners"), " ", "");
+=======
+
+        // Options
+        public string name = (string)Registry.GetValue(REGISTRY, "Name", null);
+        //public string faction = (string)Registry.GetValue(REGISTRY, "Faction", "Loner");
+>>>>>>> origin/master
         public string timeout = (string)Registry.GetValue(REGISTRY, "Timeout", "5000");
         public string chatKey = (string)Registry.GetValue(REGISTRY, "ChatKey", "DIK_APOSTROPHE");
         public bool sendDeaths = (string)Registry.GetValue(REGISTRY, "SendDeaths", "True") == "True";
@@ -45,17 +58,32 @@ namespace STALK_IRC
         Thread ircListen;
         List<string> games = new List<string>();
         Dictionary<string, SocData> socData = new Dictionary<string, SocData>();
+<<<<<<< HEAD
         string newVersionUrl = "";
         bool doClose = false; // Close()ing at arbitrary positions seems to be a bad idea so this defers it to one of the timers
 
+=======
+        bool doClose = false; // Close()ing at arbitrary positions seems to be a bad idea so this defers it to one of the timers
+
+        public void Crash(string message)
+        {
+            timer1.Enabled = false;
+            doClose = true;
+            MessageBox.Show(message, "Fatal error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+>>>>>>> origin/master
         public ClientForm()
         {
             InitializeComponent();
         }
 
+<<<<<<< HEAD
 
         // Form events
 
+=======
+>>>>>>> origin/master
         private void Form1_Load(object sender, EventArgs e)
         {
             string lastVersion = (string)Registry.GetValue(REGISTRY, "Version", null);
@@ -95,6 +123,7 @@ namespace STALK_IRC
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+<<<<<<< HEAD
             if (irc.IsConnected)
             {
                 irc.RfcQuit();
@@ -133,6 +162,66 @@ namespace STALK_IRC
         {
             Process.Start(newVersionUrl);
             Close();
+=======
+            irc.RfcQuit();
+            irc.Disconnect();
+            ircListen.Join();
+        }
+
+        private void OnTopic(object sender, TopicEventArgs e)
+        {
+            Match match = Regex.Match(e.Topic, @"Latest version: ([^\|]+) \| Download: ([^ ]+)");
+            if (match.Success && VERSION != match.Groups[1].Value)
+            {
+                DialogResult choice = MessageBox.Show("New version available: " + match.Groups[1].Value + "\nWould you like to download it now?\n" + match.Groups[2].Value, "Update!",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                if (choice == DialogResult.Yes)
+                {
+                    Process.Start(match.Groups[2].Value);
+                    doClose = true;
+                }
+            }
+        }
+
+        private void OnTopicChange(object sender, TopicChangeEventArgs e)
+        {
+            TopicEventArgs topic = new TopicEventArgs(null, null, e.NewTopic);
+            OnTopic(null, topic);
+        }
+
+        private void OnRawMessage(object sender, IrcEventArgs e)
+        {
+            Invoke(new Action(() => textBox1.AppendText((textBox1.Lines.Length != 0 ? "\r\n" : "") + e.Data.RawMessage)));
+        }
+
+        private void OnChannelMessage(object sender, IrcEventArgs e)
+        {
+            string name = "", message = "";
+            if (e.Data.Message[0] == '☺')
+            {
+                if (!receiveDeaths)
+                    return;
+                Match match = Regex.Match(e.Data.Message, "☺([^ ]+?) (.+)");
+                name = match.Groups[1].Value;
+                message = match.Groups[2].Value;
+            }
+            else
+            {
+                name = e.Data.Nick;
+                message = e.Data.Message;
+            }
+            SendMessage(name, message);
+        }
+
+        private void OnJoin(object sender, JoinEventArgs e)
+        {
+            SendMessage("Information", e.Who + " has logged on to the network.");
+        }
+
+        private void OnNickChange(object sender, NickChangeEventArgs e)
+        {
+            SendMessage("Information", e.NewNickname + " has logged on to the network.");
+>>>>>>> origin/master
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -263,7 +352,10 @@ namespace STALK_IRC
                         string action = match.Groups[1].Value;
                         string arg1 = match.Groups[2].Value;
                         string arg2 = match.Groups[3].Value;
+<<<<<<< HEAD
                         string message = "";
+=======
+>>>>>>> origin/master
                         switch (action)
                         {
                             case "1": // Settings request
@@ -272,19 +364,31 @@ namespace STALK_IRC
                                 SendCommand(path, 1, "atmospheres", muhAtmospheres.ToString());
                                 break;
                             case "2": // Normal message
+<<<<<<< HEAD
                                 message = faction + "/" + arg2;
                                 match = Regex.Match(message, "([^/]+/[^/]+)/(.+)");
                                 irc.SendMessage(SendType.Message, CHANNEL, match.Groups[1].Value + '☺' + match.Groups[2].Value);
                                 SendMessage(irc.Nickname, message);
+=======
+                                irc.SendMessage(SendType.Message, CHANNEL, arg2);
+                                SendMessage(irc.Nickname, arg2);
+>>>>>>> origin/master
                                 break;
                             case "3": // Death message
                                 if (sendDeaths)
                                 {
+<<<<<<< HEAD
                                     match = Regex.Match(arg2, "([^/]+)/(.+)");
                                     string randName = STALKIRCStrings.GenerateName();
                                     message = "Loners/" + match.Groups[2].Value + MAGIC + STALKIRCStrings.BuildSentence(irc.Nickname, arg1, match.Groups[1].Value);
                                     irc.SendMessage(SendType.Message, CHANNEL, randName + "☻" + message);
                                     SendMessage(randName, message.Replace(MAGIC, '/'));
+=======
+                                    string randName = STALKIRCStrings.GenerateName();
+                                    string message = STALKIRCStrings.BuildSentence(irc.Nickname, arg1, arg2);
+                                    irc.SendMessage(SendType.Message, CHANNEL, "☺" + randName + " " + message);
+                                    SendMessage(randName, message);
+>>>>>>> origin/master
                                 }
                                 break;
                         }
@@ -293,6 +397,7 @@ namespace STALK_IRC
             }
         }
 
+<<<<<<< HEAD
 
         // IRC events
 
@@ -378,6 +483,11 @@ namespace STALK_IRC
         {
             Match match = Regex.Match(message, "[^/]+/[^/]+/(.+)");
             Invoke(new Action(() => textBox3.AppendText((textBox3.Lines.Length != 0 ? "\r\n" : "") + name.Replace('_', ' ') + "> " + match.Groups[1].Value)));
+=======
+        void SendMessage(string name, string message)
+        {
+            Invoke(new Action(() => textBox3.AppendText((textBox3.Lines.Length != 0 ? "\r\n" : "") + name.Replace('_', ' ') + "> " + message)));
+>>>>>>> origin/master
             string line = "2/" + name + "/" + message;
             foreach (string path in games)
             {
@@ -419,6 +529,34 @@ namespace STALK_IRC
                 SendCommand(path, action, arg1, arg2);
         }
 
+<<<<<<< HEAD
+=======
+        private void button3_Click(object sender, EventArgs e)
+        {
+            new InstallForm().ShowDialog();
+        }
+
+        private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                if (textBox4.Text == "")
+                {
+                    MessageBox.Show("The input field appears to be empty.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                irc.SendMessage(SendType.Message, CHANNEL, textBox4.Text);
+                SendMessage(irc.Nickname, textBox4.Text);
+                textBox4.Text = "";
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            new OptionsForm(this).ShowDialog();
+        }
+
+>>>>>>> origin/master
         // I can't decide if this is clever or just wank
         private void FileTryLoop(Action lambda)
         {

@@ -96,6 +96,7 @@
             // 
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
+<<<<<<< HEAD
             "Loners",
             "Bandits",
             "Duty",
@@ -103,12 +104,25 @@
             "Ecologists",
             "Clear Sky",
             "Mercenaries",
+=======
+            "Loner",
+            "Bandit",
+            "Duty",
+            "Freedom",
+            "Ecologist",
+            "Clear Sky",
+            "Mercenary",
+>>>>>>> origin/master
             "Military",
             "Monolith"});
             this.comboBox1.Location = new System.Drawing.Point(110, 37);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(185, 21);
             this.comboBox1.TabIndex = 5;
+<<<<<<< HEAD
+=======
+            this.comboBox1.Text = "This doesn\'t do anything yet :^)";
+>>>>>>> origin/master
             // 
             // label3
             // 
