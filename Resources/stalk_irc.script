@@ -1,5 +1,5 @@
 ﻿--| Game interface for STALK-IRC
---| Last modified: Mar 6, '15
+--| Last modified: Mar 7, '15
 --| By: TKGP
 
 local UPDATEINTERVAL	= 1000						-- Time between file checks in milliseconds
@@ -16,6 +16,8 @@ local timeout			= 5000						-- Default duration of news messages
 local chatKey			= DIK_keys.DIK_APOSTROPHE	-- Default key to trigger chat box UI
 local muhAtmospheres	= false						-- Disables IRC underground
 local atmosphericLevels								-- List of interior levels, filled out below
+
+-- :name(), :section(), :profile_name()
 
 function onUpdate()
 	if disable then return end
@@ -84,24 +86,28 @@ function onUpdate()
 			end
 		elseif action == "2" and not ( muhAtmospheres and atmosphericLevels[ level.name() ] ) then
 			local faction, gameIcon, message = arg2:match( "([^/]+)/([^/]+)/(.+)" )
-			gameIcon = gameIcon:upper()
-			-- Consistent random portraits per name; yeah, I know this is pretty bullshit but randomseed in Lua 5.1 is all kinds of janked up
-			local oldRandom = math.random()
-			local seed = 0
-			for _, charValue in ipairs( { arg1:byte( 1, #arg1 ) } ) do
-				seed = seed + charValue
+			if not faction or not gameIcon or not message then
+				giveNews( "Format error in message:", line )
+			else
+				gameIcon = gameIcon:upper()
+				-- Consistent random portraits per name; yeah, I know this is pretty bullshit but randomseed in Lua 5.1 is all kinds of janked up
+				local oldRandom = math.random()
+				local seed = 0
+				for _, charValue in ipairs( { arg1:byte( 1, #arg1 ) } ) do
+					seed = seed + charValue
+				end
+				seed = seed / #arg1
+				seed = math.floor( ( seed - math.floor( seed ) ) * 10000 )
+				math.randomseed( seed )
+				local icon
+				if arg1 == "TKGP" or arg1 == "Toshka_Gospod" then -- :^)
+					icon = stalk_irc_icons.tkgp[ gameIcon ]
+				elseif arg1 ~= "Information" then
+					icon = stalk_irc_icons[ faction ][ math.random( #stalk_irc_icons[ faction ] ) ][ gameIcon ]
+				end
+				math.randomseed( oldRandom )
+				giveNews( arg1:gsub( "_", " " ), message, icon )
 			end
-			seed = seed / #arg1
-			seed = math.floor( ( seed - math.floor( seed ) ) * 10000 )
-			math.randomseed( seed )
-			local icon
-			if arg1 == "TKGP" or arg1 == "Toshka_Gospod" then -- :^)
-				icon = stalk_irc_icons.tkgp[ gameIcon ]
-			elseif arg1 ~= "Information" then
-				icon = stalk_irc_icons[ faction ][ math.random( #stalk_irc_icons[ faction ] ) ][ gameIcon ]
-			end
-			math.randomseed( oldRandom )
-			giveNews( arg1:gsub( "_", " " ), message, icon )
 		end
 	end
 end

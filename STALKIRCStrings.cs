@@ -14,6 +14,8 @@ namespace STALK_IRC
         static List<string> genericDeaths = new List<string>();
         static List<string> fNames = new List<string>();
         static List<string> sNames = new List<string>();
+        public static List<string> validFactions = new List<string>();
+        public static List<string> validGames = new List<string>();
         static Dictionary<string, string> levelNames = new Dictionary<string, string>();
         static Dictionary<string, string> deaths = new Dictionary<string, string>();
         static Random rand = new Random();
@@ -40,6 +42,25 @@ namespace STALK_IRC
 
         public static void Populate()
         {
+            validFactions.AddRange(new string[]{
+                "Loners",
+                "Bandits",
+                "Duty",
+                "Freedom",
+                "Ecologists",
+                "ClearSky",
+                "Mercenaries",
+                "Military",
+                "Monolith",
+            });
+
+            validGames.AddRange(new string[]{
+                "SOC",
+                "CS",
+                "COP",
+                "LA",
+            });
+
             times.AddRange(new string[]{
                 "Recently ",
                 "A few minutes ago ",
@@ -154,6 +175,11 @@ namespace STALK_IRC
 
             // AMK
             deaths["TURRETMG"] = " went down in a hail of bullets. ";
+
+            // SGM
+            deaths["BANDIT_ENEMY"] = deaths["BANDIT"];
+            deaths["BANDIT_ALIES"] = deaths["BANDIT"];
+            deaths["ALFA_FORCE"] = " was eliminated by an Alpha Squad. ";
 
             genericDeaths.AddRange(new string[]{
                 " was killed. ",

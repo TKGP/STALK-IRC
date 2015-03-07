@@ -20,7 +20,7 @@ namespace STALK_IRC
     public partial class ClientForm : Form
     {
         // Constants
-        const string VERSION = "Beta 11";
+        const string VERSION = "Beta 12";
         const string SERVER = "irc.slashnet.org";
         const string CHANNEL = "#STALK-IRC";
         const string INPUT = @"\STALK-IRC_input.txt";
@@ -122,8 +122,8 @@ namespace STALK_IRC
                 else
                 {
                     textBox4.BackColor = Color.White;
-                    irc.SendMessage(SendType.Message, CHANNEL, faction + "/soc☺" + textBox4.Text);
-                    SendMessage(irc.Nickname, faction + "/soc/" + textBox4.Text);
+                    irc.SendMessage(SendType.Message, CHANNEL, faction + "/SoC☺" + textBox4.Text);
+                    SendMessage(irc.Nickname, faction + "/SoC/" + textBox4.Text);
                     textBox4.Text = "";
                 }
             }
@@ -299,26 +299,29 @@ namespace STALK_IRC
         private void OnTopic(object sender, TopicEventArgs e)
         {
             Match match = Regex.Match(e.Topic, @"Latest version: ([^\|]+) \| Download: ([^ ]+)");
-            if (match.Success && VERSION != match.Groups[1].Value)
+            if (match.Success)
             {
-                irc.RfcQuit();
-                irc.Disconnect();
-                newVersionUrl = match.Groups[2].Value;
-                Invoke(new Action(() =>
+                if (VERSION != match.Groups[1].Value)
                 {
-                    textBox4.Enabled = false;
-                    timer1.Enabled = false;
-                    timer2.Enabled = false;
-                    label1.Hide();
-                    linkLabel1.Text = "New version: " + match.Groups[1].Value + " - Click to open in browser!";
-                    linkLabel1.Show();
-                }));
-                SendMessage("Information", "_/_/A new version of STALK-IRC is available!");
+                    irc.RfcQuit();
+                    irc.Disconnect();
+                    newVersionUrl = match.Groups[2].Value;
+                    Invoke(new Action(() =>
+                    {
+                        textBox4.Enabled = false;
+                        timer1.Enabled = false;
+                        timer2.Enabled = false;
+                        label1.Hide();
+                        linkLabel1.Text = "New version: " + match.Groups[1].Value + " - Click to open in browser!";
+                        linkLabel1.Show();
+                    }));
+                    SendMessage("Information", "_/_/A new version of STALK-IRC is available! STALK-IRC is now disabled; check the client to update.");
+                }
+                else
+                    Invoke(new Action(() => label1.Text = "Latest version: " + match.Groups[1].Value + " - Up to date!"));
             }
             else
-            {
-                Invoke(new Action(() => label1.Text = "Latest version: " + match.Groups[1].Value + " - Up to date!"));
-            }
+                Invoke(new Action(() => label1.Text = ""));
         }
 
         private void OnTopicChange(object sender, TopicChangeEventArgs e)
@@ -335,10 +338,10 @@ namespace STALK_IRC
         private void OnChannelMessage(object sender, IrcEventArgs e)
         {
             string name = "", message = "";
-            Match match = Regex.Match(e.Data.Message, "(.+)☻(.+)");
+            Match match = Regex.Match(e.Data.Message, "(.*)☻(.+)");
             if (match.Success)
             {
-                if (!receiveDeaths)
+                if (!receiveDeaths || match.Groups[1].Length == 0)
                     return;
                 name = match.Groups[1].Value;
                 message = match.Groups[2].Value;
@@ -349,7 +352,12 @@ namespace STALK_IRC
                 message = e.Data.Message;
             }
             if (message.Contains(MAGIC))
+            {
+                match = Regex.Match(message, "([^/]+)/(.+)" + MAGIC);
+                if (!match.Success || !STALKIRCStrings.validFactions.Contains(match.Groups[1].Value) || !STALKIRCStrings.validGames.Contains(match.Groups[2].Value.ToUpper()))
+                    return;
                 SendMessage(name, message.Replace(MAGIC, '/'));
+            }
             else
                 SendMessage(name, "Loners/SoC/" + message);
         }
