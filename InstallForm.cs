@@ -10,23 +10,76 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
 
 namespace STALK_IRC
 {
     public partial class InstallForm : Form
     {
+        string games, lastInstall;
+        Dictionary<string, string> oldGames = new Dictionary<string, string>();
+
         public InstallForm()
         {
             InitializeComponent();
         }
 
+        private void InstallForm_Load(object sender, EventArgs e)
+        {
+            games = (string)Registry.GetValue(ClientForm.REGISTRY, "GameList", "");
+            foreach (Match match in Regex.Matches(games, @"([^\|]+)\|([^\|]+)"))
+            {
+                string game = match.Groups[1].Value;
+                string path = match.Groups[2].Value;
+                oldGames[path] = game;
+            }
+
+            lastInstall = (string)Registry.GetValue(ClientForm.REGISTRY, "LastInstall", "");
+        }
+
+        private void InstallForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Registry.SetValue(ClientForm.REGISTRY, "GameList", games);
+            Registry.SetValue(ClientForm.REGISTRY, "LastInstall", lastInstall);
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
             string path = textBox1.Text;
+            if (path != "")
+            {
+                textBox1.BackColor = Color.White;
+                string game = radioButton4.Checked ? "SoC" : (radioButton1.Checked ? "CS" : (radioButton2.Checked ? "CoP" : "LA"));
+                if (Install(game, path, false))
+                {
+                    lastInstall = path;
+                    if (!oldGames.ContainsKey(textBox1.Text))
+                        games += game + "|" + textBox1.Text + "|";
+                }
+            }
+            else
+                textBox1.BackColor = Color.LightPink;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (lastInstall != "" && Directory.Exists(lastInstall))
+                folderBrowserDialog1.SelectedPath = lastInstall;
+            folderBrowserDialog1.ShowDialog();
+            textBox1.Text = folderBrowserDialog1.SelectedPath;
+        }
+
+        public static bool Install(string game, string path, bool silent)
+        {
             if (Directory.Exists(path))
                 if (File.Exists(path + @"\fsgame.ltx"))
                 {
-                    string configPath = path + @"\gamedata" + ((radioButton3.Checked || radioButton4.Checked) ? @"\config" : @"\configs");
+                    string configPath = path + @"\gamedata" + ((game == "SoC" || game == "LA") ? @"\config" : @"\configs");
                     string scriptPath = path + @"\gamedata\scripts";
                     string texturePath = path + @"\gamedata\textures\ui";
                     if (!Directory.Exists(configPath + @"\ui"))
@@ -40,7 +93,7 @@ namespace STALK_IRC
                     File.WriteAllText(scriptPath + @"\stalk_irc_icons.script", Resources.stalkIRCIconsScript);
                     File.WriteAllBytes(texturePath + @"\stalk_irc_icons.dds", Resources.stalkIRCIcons);
 
-                    if (radioButton1.Checked || radioButton2.Checked)
+                    if (game == "CS" || game == "CoP")
                     {
                         if (!Directory.Exists(configPath + @"\ui\textures_descr"))
                             Directory.CreateDirectory(configPath + @"\ui\textures_descr");
@@ -61,10 +114,10 @@ namespace STALK_IRC
                     }
                     else
                         File.WriteAllText(scriptPath + @"\ui_main_menu.script",
-                            radioButton4.Checked ? Resources.socMainMenu : (radioButton1.Checked ? Resources.csMainMenu : (radioButton2.Checked ? Resources.copMainMenu : Resources.laMainMenu)));
+                            game == "SoC" ? Resources.socMainMenu : (game == "CS" ? Resources.csMainMenu : (game == "CoP" ? Resources.copMainMenu : Resources.laMainMenu)));
 
                     // Patching bind_stalker.script (SoC, CS, CoP) or bind_actor.script (LA)
-                    string bindWhat = scriptPath + (radioButton3.Checked ? @"\bind_actor.script" : @"\bind_stalker.script");
+                    string bindWhat = scriptPath + (game == "LA" ? @"\bind_actor.script" : @"\bind_stalker.script");
                     if (File.Exists(bindWhat))
                     {
                         string script = File.ReadAllText(bindWhat);
@@ -108,10 +161,10 @@ namespace STALK_IRC
                     }
                     else
                         File.WriteAllText(bindWhat,
-                            radioButton4.Checked ? Resources.socBindStalker : (radioButton1.Checked ? Resources.csBindStalker :
-                            (radioButton2.Checked ? Resources.copBindStalker : Resources.laBindActor)));
+                            game == "SoC" ? Resources.socBindStalker : (game == "CS" ? Resources.csBindStalker :
+                            (game == "CoP" ? Resources.copBindStalker : Resources.laBindActor)));
 
-                    if (radioButton4.Checked)
+                    if (game == "SoC")
                     {
                         if (!Directory.Exists(configPath + @"\misc"))
                             Directory.CreateDirectory(configPath + @"\misc");
@@ -119,28 +172,22 @@ namespace STALK_IRC
                         File.WriteAllText(configPath + @"\misc\stalk_irc.ltx", Resources.socInputClear);
                     }
 
-                    MessageBox.Show("Mod installed.", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (!silent)
+                        MessageBox.Show("Mod installed.", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return true;
                 }
                 else
-                    MessageBox.Show("fsgame.ltx not found in the specified directory.\nPlease select again.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                {
+                    if (!silent)
+                        MessageBox.Show("fsgame.ltx not found in the specified directory.\nPlease select again.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
             else
-                MessageBox.Show("The specified directory does not exist.\nPlease select again.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            button2.Enabled = textBox1.Text != "";
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog1.ShowDialog();
-            textBox1.Text = folderBrowserDialog1.SelectedPath;
+            {
+                if (!silent)
+                    MessageBox.Show("The specified directory does not exist.\nPlease select again.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
     }
 }

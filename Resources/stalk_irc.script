@@ -1,14 +1,13 @@
 ﻿--| Game interface for STALK-IRC
---| Last modified: Mar 7, '15
+--| Last modified: Mar 8, '15
 --| By: TKGP
 
 local UPDATEINTERVAL	= 1000						-- Time between file checks in milliseconds
 local INPATH			= getFS():update_path( "$fs_root$", "" ).."\\STALK-IRC_input.txt"
 local OUTPATH			= getFS():update_path( "$fs_root$", "" ).."\\STALK-IRC_output.txt"
-local INPUTREGEX		= "([^/]+)/([^/]+)/(.+)"	-- Regular expression for parsing input
 local ssVer				= script_server_object_version()
-game					= ( ssVer >= 12 and "CoP" ) or ( ssVer >= 8 and "CS" ) or
-							( ssVer == 7 and bind_actor ~= nil and "LA" ) or ( ssVer <= 7 and bind_stalker ~= nil and "SoC" )
+game = ( ssVer >= 12 and "CoP" ) or ( ssVer >= 8 and "CS" ) or ( ssVer == 7 and bind_actor ~= nil and "LA" ) or ( ssVer <= 7 and bind_stalker ~= nil and "SoC" )
+
 local lastUpdate		= 0
 local spawned			= false						-- Extra logic on first update
 local disable			= false						-- In case of errors, shut down everything
@@ -16,8 +15,6 @@ local timeout			= 5000						-- Default duration of news messages
 local chatKey			= DIK_keys.DIK_APOSTROPHE	-- Default key to trigger chat box UI
 local muhAtmospheres	= false						-- Disables IRC underground
 local atmosphericLevels								-- List of interior levels, filled out below
-
--- :name(), :section(), :profile_name()
 
 function onUpdate()
 	if disable then return end
@@ -28,15 +25,15 @@ function onUpdate()
 	if not spawned then
 		spawned = true
 		if game == "SoC" then
-			sendOutput( "1/_/_" )
+			sendOutput( "1" )
 		else
 			local output = io.open( OUTPATH, "w" )
 			if not output then
-				giveNews( "Information", "Failed to open output file; STALK-IRC is now disabled. Try running the game as Administrator." )
+				giveNews( "Error: Initial output write failed.", "STALK-IRC is now disabled; try running the game as Administrator." )
 				disable = true
 				return
 			end
-			output:write( "1/_/_\r\n" )
+			output:write( "1\n" )
 			output:close()
 		end
 	end
@@ -58,7 +55,7 @@ function onUpdate()
 			local input
 			while not input do
 				if count > 100 then
-					giveNews( "Information", "Input read timed out; STALK-IRC is now disabled. Try running the game as Administrator." )
+					giveNews( "Error: Input read timed out.", "STALK-IRC is now disabled; try running the game as Administrator." )
 					disable = true
 					return
 				end
@@ -75,38 +72,43 @@ function onUpdate()
 		end
 	end
 	for line in fileText:gmatch( "[^\n]+" ) do
-		local action, arg1, arg2 = line:match( INPUTREGEX )
-		if action == "1" then
-			if arg1 == "timeout" then
-				timeout = tonumber( arg2 )
-			elseif arg1 == "chatkey" then
-				chatKey = DIK_keys[ arg2 ]
-			elseif arg1 == "atmospheres" then
-				muhAtmospheres = arg2 == "True"
+		local command, arguments = line:match( "([^/]+)/(.+)" )
+		if command == "1" then
+			local variable, value = arguments:match( "([^/]+)/(.+)" )
+			if variable == "timeout" then
+				timeout = tonumber( value )
+			elseif variable == "chatkey" then
+				chatKey = DIK_keys[ value ]
+			elseif variable == "atmospheres" then
+				muhAtmospheres = value == "True"
 			end
-		elseif action == "2" and not ( muhAtmospheres and atmosphericLevels[ level.name() ] ) then
-			local faction, gameIcon, message = arg2:match( "([^/]+)/([^/]+)/(.+)" )
-			if not faction or not gameIcon or not message then
-				giveNews( "Format error in message:", line )
+		elseif command == "2" and not ( muhAtmospheres and atmosphericLevels[ level.name() ] ) then
+			local name, faction, gameIcon, message = arguments:match( "([^/]+)/([^/]+)/([^/]+)/(.+)" )
+			if not name or not faction or not gameIcon or not message then
+				giveNews( "Error: Bad format in message.", "Line: "..line, stalk_irc_icons.error )
 			else
 				gameIcon = gameIcon:upper()
-				-- Consistent random portraits per name; yeah, I know this is pretty bullshit but randomseed in Lua 5.1 is all kinds of janked up
-				local oldRandom = math.random()
-				local seed = 0
-				for _, charValue in ipairs( { arg1:byte( 1, #arg1 ) } ) do
-					seed = seed + charValue
-				end
-				seed = seed / #arg1
-				seed = math.floor( ( seed - math.floor( seed ) ) * 10000 )
-				math.randomseed( seed )
 				local icon
-				if arg1 == "TKGP" or arg1 == "Toshka_Gospod" then -- :^)
+				if name == "TKGP" or name == "Toshka_Gospod" then -- :^)
 					icon = stalk_irc_icons.tkgp[ gameIcon ]
-				elseif arg1 ~= "Information" then
+				elseif name == "Information" then
+					icon = stalk_irc_icons.info
+				elseif name:find( "Error: " ) == 1 then
+					icon = stalk_irc_icons.error
+				else
+					-- Consistent random portraits per name; yeah, I know this is pretty bullshit but randomseed in Lua 5.1 is all kinds of janked up
+					local oldRandom = math.random()
+					local seed = 0
+					for _, charValue in ipairs( { name:byte( 1, #name ) } ) do
+						seed = seed + charValue
+					end
+					seed = seed / #name
+					seed = math.floor( ( seed - math.floor( seed ) ) * 10000 )
+					math.randomseed( seed )
 					icon = stalk_irc_icons[ faction ][ math.random( #stalk_irc_icons[ faction ] ) ][ gameIcon ]
+					math.randomseed( oldRandom )
 				end
-				math.randomseed( oldRandom )
-				giveNews( arg1:gsub( "_", " " ), message, icon )
+				giveNews( name:gsub( "_", " " ), message, icon )
 			end
 		end
 	end
@@ -114,13 +116,23 @@ end
 
 function onDeath( killedBy )
 	if disable or ( muhAtmospheres and atmosphericLevels[ level.name() ] ) then return end
-	local section = killedBy:section()
-	local config = system_ini()
-	local class = config:section_exist( section ) and config:line_exist( section, "class" ) and config:r_string( section, "class" ) or section
-	if class == "AI_STL_S" then
-		class = killedBy:character_community()
+	local section, class
+	if killedBy then
+		section = killedBy:section()
+		local config = system_ini()
+		if config:section_exist( section ) and config:line_exist( section, "class" ) then
+			class = config:r_string( section, "class" )
+			if class == "AI_STL_S" then
+				class = killedBy:character_community()
+			end
+		else
+			class = "Classless"
+		end
+	else
+		section = "_"
+		class = "Nothing"
 	end
-	sendOutput( "3/"..class.."/"..level.name().."/"..game )
+	sendOutput( "3/"..game.."/"..level.name().."/"..section.."/"..class )
 end
 
 function onKeypress( keyCode )
@@ -161,7 +173,7 @@ function sendOutput( message )
 		local output
 		while not output do
 			if count > 100 then
-				giveNews( "Information", "Output write timed out; STALK-IRC is now disabled. Try running the game as Administrator." )
+				giveNews( "Error: Output write timed out.", "STALK-IRC is now disabled; try running the game as Administrator." )
 				disable = true
 				return
 			end
@@ -222,7 +234,7 @@ function chatInputWindow:onSend()
 	if chatInput and chatInput ~= "" then
 		self.editBox:SetText( "" )
 		self.editBox:Show( true )
-		sendOutput( "2/_/"..game.."/"..chatInput )
+		sendOutput( "2/"..game.."/"..chatInput )
 	end
 end
 

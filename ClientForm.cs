@@ -20,7 +20,7 @@ namespace STALK_IRC
     public partial class ClientForm : Form
     {
         // Constants
-        const string VERSION = "Beta 12";
+        const string VERSION = "Beta 13";
         const string SERVER = "irc.slashnet.org";
         const string CHANNEL = "#STALK-IRC";
         const string INPUT = @"\STALK-IRC_input.txt";
@@ -28,7 +28,6 @@ namespace STALK_IRC
         const string SOCINPUT = @"\gamedata\config\misc\stalk_irc.ltx";
         const string SOCINPUTCLEAR = @"\gamedata\config\misc\stalk_irc_clear.ltx";
         public const string REGISTRY = @"HKEY_CURRENT_USER\Software\STALK-IRC";
-        const string INPUTREGEX = "([^/]+)/([^/]+)/(.+)";
         const char MAGIC = '☺';
 
         // Options
@@ -43,7 +42,7 @@ namespace STALK_IRC
         // Other stuff!
         public IrcClient irc = new IrcClient();
         Thread ircListen;
-        List<string> games = new List<string>();
+        Dictionary<int, string> games = new Dictionary<int, string>();
         Dictionary<string, SocData> socData = new Dictionary<string, SocData>();
         string newVersionUrl = "";
         bool doClose = false; // Close()ing at arbitrary positions seems to be a bad idea so this defers it to one of the timers
@@ -64,8 +63,14 @@ namespace STALK_IRC
                 if (lastVersion == null)
                     MessageBox.Show("Thank you for downloading STALK-IRC " + VERSION + ".\nPlease read the readme, if you haven't already.", "Welcome!");
                 else
-                    MessageBox.Show("Thank you for downloading STALK-IRC " + VERSION + ".\nDue to the update, remember to re-install the mod component for each of your games before use.",
-                        "Update!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                {
+                    string previousGames = (string)Registry.GetValue(REGISTRY, "GameList", "");
+                    if (previousGames != "")
+                        new ReinstallForm(previousGames).ShowDialog();
+                    else
+                        MessageBox.Show("Thank you for downloading STALK-IRC " + VERSION + ".\nDue to the update, remember to re-install the mod component for each of your games before use.",
+                            "Update!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
                 Registry.SetValue(REGISTRY, "Version", VERSION);
             }
 
@@ -86,7 +91,7 @@ namespace STALK_IRC
             irc.OnTopic += new TopicEventHandler(OnTopic);
             irc.OnTopicChange += new TopicChangeEventHandler(OnTopicChange);
             irc.Connect(SERVER, 6667);
-            irc.Login(name, "STALK-IRC Client");
+            irc.Login(name, "STALK-IRC Client " + VERSION);
             irc.RfcJoin(CHANNEL);
             ircListen = new Thread(irc.Listen);
             ircListen.Start();
@@ -137,86 +142,103 @@ namespace STALK_IRC
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            // Prune closed games
+            List<int> toPrune = new List<int>();
+            foreach (int id in games.Keys)
+            {
+                try
+                {
+                    Process.GetProcessById(id);
+                }
+                catch (ArgumentException)
+                {
+                    toPrune.Add(id);
+                }
+            }
+            foreach (int id in toPrune)
+            {
+                if (socData.ContainsKey(games[id]))
+                    socData.Remove(games[id]);
+                games.Remove(id);
+            }
+
             foreach (Process process in Process.GetProcesses())
             {
-                if (process.ProcessName == "XR_3DA" || process.ProcessName == "xrEngine")
+                if ((process.ProcessName == "XR_3DA" || process.ProcessName == "xrEngine") && !games.ContainsKey(process.Id))
                 {
                     string path = process.Modules[0].FileName;
                     path = Regex.Match(path, @"(.+)\\[^\\]+?\\[^\\]+").Groups[1].Value;
-                    if (!games.Contains(path))
+                    if (File.Exists(path + OUTPUT))
                     {
-                        if (File.Exists(path + OUTPUT))
+                        try
                         {
-                            try
-                            {
-                                File.AppendAllText(path + INPUT, "");
-                            }
-                            catch (Exception ex)
-                            {
-                                Crash("STALK-IRC was unable to open the input file and will now shut down.\nTry running the client as Administrator.\n" +
-                                    "Specific error: " + ex.Message);
-                                return;
-                            }
-                            games.Add(path);
+                            File.AppendAllText(path + INPUT, "");
                         }
-                        // Checking if SoC
-                        else if (process.ProcessName == "XR_3DA")
+                        catch (Exception ex)
                         {
-                            string logPath = "";
-                            string fsGame = "";
-                            FileTryLoop(() => fsGame = File.ReadAllText(path + @"\fsgame.ltx"));
-                            // Strip comments
-                            fsGame = Regex.Replace(fsGame, ";.+", "");
-                            Match appDataMatch = Regex.Match(fsGame, @"\$app_data_root\$.+");
-                            if (!appDataMatch.Success)
-                            {
-                                Crash("Appdata root match failed. Please include the contents of fsgame.ltx with your report.");
-                                return;
-                            }
-                            Match appDataPath = Regex.Match(appDataMatch.Value, @"\$app_data_root\$\s*=\s*(true|false)\s*\|\s*(true|false)\s*\|(.+)");
-                            if (!appDataPath.Success)
-                            {
-                                Crash("Appdata path match failed. Please include the contents of fsgame.ltx with your report.");
-                                return;
-                            }
-                            string pathSection = appDataPath.Groups[3].Value.Trim();
-                            if (pathSection.Contains("|"))
-                            {
-                                Match match = Regex.Match(pathSection, @"([^\|]+?)\s*\|\s*(.+)");
-                                if (match.Groups[1].Value == "$fs_root$")
-                                    logPath = path + @"\" + match.Groups[2].Value;
-                                else
-                                    logPath = match.Groups[1].Value + match.Groups[2].Value;
-                            }
+                            Crash("STALK-IRC was unable to open the input file and will now shut down.\nTry running the client as Administrator.\n" +
+                                "Specific error: " + ex.Message);
+                            return;
+                        }
+                        games[process.Id] = path;
+                    }
+                    // Checking if SoC
+                    else if (process.ProcessName == "XR_3DA")
+                    {
+                        string logPath = "";
+                        string fsGame = "";
+                        FileTryLoop(() => fsGame = File.ReadAllText(path + @"\fsgame.ltx"));
+                        // Strip comments
+                        fsGame = Regex.Replace(fsGame, ";.+", "");
+                        Match appDataMatch = Regex.Match(fsGame, @"\$app_data_root\$.+");
+                        if (!appDataMatch.Success)
+                        {
+                            Crash("Appdata root match failed. Please include the contents of fsgame.ltx with your report.");
+                            return;
+                        }
+                        Match appDataPath = Regex.Match(appDataMatch.Value, @"\$app_data_root\$\s*=\s*(true|false)\s*\|\s*(true|false)\s*\|(.+)");
+                        if (!appDataPath.Success)
+                        {
+                            Crash("Appdata path match failed. Please include the contents of fsgame.ltx with your report.");
+                            return;
+                        }
+                        string pathSection = appDataPath.Groups[3].Value.Trim();
+                        if (pathSection.Contains("|"))
+                        {
+                            Match match = Regex.Match(pathSection, @"([^\|]+?)\s*\|\s*(.+)");
+                            if (match.Groups[1].Value == "$fs_root$")
+                                logPath = path + @"\" + match.Groups[2].Value;
                             else
-                            {
-                                logPath = pathSection;
-                                // If relative path
-                                if (logPath[1] != ':')
-                                    logPath = path + @"\" + logPath;
-                            }
-                            if (logPath[logPath.Length - 1] != '\\')
-                                logPath += @"\";
-                            logPath += @"logs\xray_" + Environment.UserName.ToLower() + ".log";
-                            if (!File.Exists(logPath))
-                            {
-                                Crash("Log file could not be found at " + logPath + ". Please include the contents of fsgame.ltx with your report.");
-                                return;
-                            }
+                                logPath = match.Groups[1].Value + match.Groups[2].Value;
+                        }
+                        else
+                        {
+                            logPath = pathSection;
+                            // If relative path
+                            if (logPath[1] != ':')
+                                logPath = path + @"\" + logPath;
+                        }
+                        if (logPath[logPath.Length - 1] != '\\')
+                            logPath += @"\";
+                        logPath += @"logs\xray_" + Environment.UserName.ToLower() + ".log";
+                        if (!File.Exists(logPath))
+                        {
+                            Crash("Log file could not be found at " + logPath + ". Please include the contents of fsgame.ltx with your report.");
+                            return;
+                        }
 
-                            string logText = "";
-                            FileTryLoop(() => logText = File.ReadAllText(logPath));
-                            // Yay, it's SoC
-                            if (logText.Contains("~#stalk-irc "))
-                            {
-                                int lines = 0;
-                                FileTryLoop(() => lines = File.ReadAllLines(logPath).Length);
-                                games.Add(path);
-                                socData.Add(path, new SocData(logPath, lines));
-                                SendCommand(path, 1, "timeout", timeout);
-                                SendCommand(path, 1, "chatkey", chatKey);
-                                SendCommand(path, 1, "atmospheres", muhAtmospheres.ToString());
-                            }
+                        string logText = "";
+                        FileTryLoop(() => logText = File.ReadAllText(logPath));
+                        // Yay, it's SoC
+                        if (logText.Contains("~#stalk-irc "))
+                        {
+                            int lines = 0;
+                            FileTryLoop(() => lines = File.ReadAllLines(logPath).Length);
+                            games[process.Id] = path;
+                            socData.Add(path, new SocData(logPath, lines));
+                            SendCommand(path, 1, "timeout", timeout);
+                            SendCommand(path, 1, "chatkey", chatKey);
+                            SendCommand(path, 1, "atmospheres", muhAtmospheres.ToString());
                         }
                     }
                 }
@@ -227,7 +249,7 @@ namespace STALK_IRC
         {
             if (doClose)
                 Close();
-            foreach (string path in games)
+            foreach (string path in games.Values)
             {
                 List<string> lines = new List<string>();
                 if (socData.ContainsKey(path))
@@ -259,12 +281,11 @@ namespace STALK_IRC
                 {
                     if (line.Length > 0)
                     {
-                        Match match = Regex.Match(line, INPUTREGEX);
-                        string action = match.Groups[1].Value;
-                        string arg1 = match.Groups[2].Value;
-                        string arg2 = match.Groups[3].Value;
-                        string message = "";
-                        switch (action)
+                        Match match = Regex.Match(line, "([^/]+)/?(.*)");
+                        string command = match.Groups[1].Value;
+                        string arguments = match.Groups[2].Value;
+                        string game, message;
+                        switch (command)
                         {
                             case "1": // Settings request
                                 SendCommand(path, 1, "timeout", timeout);
@@ -272,20 +293,28 @@ namespace STALK_IRC
                                 SendCommand(path, 1, "atmospheres", muhAtmospheres.ToString());
                                 break;
                             case "2": // Normal message
-                                message = faction + "/" + arg2;
-                                match = Regex.Match(message, "([^/]+/[^/]+)/(.+)");
-                                irc.SendMessage(SendType.Message, CHANNEL, match.Groups[1].Value + '☺' + match.Groups[2].Value);
-                                SendMessage(irc.Nickname, message);
+                                Match messageMatch = Regex.Match(arguments, "([^/]+)/(.+)");
+                                game = messageMatch.Groups[1].Value;
+                                message = messageMatch.Groups[2].Value;
+                                irc.SendMessage(SendType.Message, CHANNEL, faction + "/" + game + MAGIC + message);
+                                SendMessage(irc.Nickname, faction + "/" + game + "/" + message);
                                 break;
                             case "3": // Death message
                                 if (sendDeaths)
                                 {
-                                    match = Regex.Match(arg2, "([^/]+)/(.+)");
+                                    Match deathMatch = Regex.Match(arguments, "([^/]+)/([^/]+)/([^/]+)/(.+)");
+                                    game = deathMatch.Groups[1].Value;
+                                    string level = deathMatch.Groups[2].Value;
+                                    string section = deathMatch.Groups[3].Value;
+                                    string classType = deathMatch.Groups[4].Value;
                                     string randName = STALKIRCStrings.GenerateName();
-                                    message = "Loners/" + match.Groups[2].Value + MAGIC + STALKIRCStrings.BuildSentence(irc.Nickname, arg1, match.Groups[1].Value);
+                                    message = "Loners/" + game + MAGIC + STALKIRCStrings.BuildSentence(irc.Nickname, level, section, classType);
                                     irc.SendMessage(SendType.Message, CHANNEL, randName + "☻" + message);
                                     SendMessage(randName, message.Replace(MAGIC, '/'));
                                 }
+                                break;
+                            default:
+                                SendMessage("Error: Client got bad command.", "_/_/Path: " + path + " | Line: " + line);
                                 break;
                         }
                     }
@@ -364,12 +393,12 @@ namespace STALK_IRC
 
         private void OnJoin(object sender, JoinEventArgs e)
         {
-            SendMessage("Information", "_/_/" + e.Who + " has logged on to the network.");
+            SendMessage("Information", "_/_/" + e.Who.Replace('_', ' ') + " has logged on to the network.");
         }
 
         private void OnNickChange(object sender, NickChangeEventArgs e)
         {
-            SendMessage("Information", "_/_/" + e.NewNickname + " has logged on to the network.");
+            SendMessage("Information", "_/_/" + e.NewNickname.Replace('_', ' ') + " has logged on to the network.");
         }
 
 
@@ -387,7 +416,7 @@ namespace STALK_IRC
             Match match = Regex.Match(message, "[^/]+/[^/]+/(.+)");
             Invoke(new Action(() => textBox3.AppendText((textBox3.Lines.Length != 0 ? "\r\n" : "") + name.Replace('_', ' ') + "> " + match.Groups[1].Value)));
             string line = "2/" + name + "/" + message;
-            foreach (string path in games)
+            foreach (string path in games.Values)
             {
                 string newPath = path;
                 string newLine = line;
@@ -423,7 +452,7 @@ namespace STALK_IRC
 
         public void SendCommandAll(int action, string arg1, string arg2)
         {
-            foreach (string path in games)
+            foreach (string path in games.Values)
                 SendCommand(path, action, arg1, arg2);
         }
 

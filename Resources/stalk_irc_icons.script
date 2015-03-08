@@ -3,6 +3,7 @@
 
 if stalk_irc.game == "SoC" or stalk_irc.game == "LA" then
 	info = Frect():set( 5053, 935, 163, 85 )
+	error = Frect():set( 5053, 850, 163, 85 )
 	tkgp = {
 		SOC	= Frect():set( 5053, 0, 163, 85 ),
 		CS	= Frect():set( 5053, 85, 163, 85 ),
@@ -494,6 +495,7 @@ if stalk_irc.game == "SoC" or stalk_irc.game == "LA" then
 		}
 else
 	info = "si_icon_info"
+	error = "si_icon_error"
 	tkgp = {
 		SOC	= "si_icon_tkgp_soc",
 		CS	= "si_icon_tkgp_cs",

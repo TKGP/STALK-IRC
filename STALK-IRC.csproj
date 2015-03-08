@@ -47,6 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ReinstallForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReinstallForm.Designer.cs">
+      <DependentUpon>ReinstallForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -99,6 +105,9 @@
     <Compile Include="SocData.cs" />
     <EmbeddedResource Include="ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReinstallForm.resx">
+      <DependentUpon>ReinstallForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="InstallForm.resx">
       <DependentUpon>InstallForm.cs</DependentUpon>

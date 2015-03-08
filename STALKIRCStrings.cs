@@ -17,7 +17,8 @@ namespace STALK_IRC
         public static List<string> validFactions = new List<string>();
         public static List<string> validGames = new List<string>();
         static Dictionary<string, string> levelNames = new Dictionary<string, string>();
-        static Dictionary<string, string> deaths = new Dictionary<string, string>();
+        static Dictionary<string, string> deathBySection = new Dictionary<string, string>();
+        static Dictionary<string, string> deathByClass = new Dictionary<string, string>();
         static Random rand = new Random();
 
         static string RandomString(List<string> collection)
@@ -25,13 +26,19 @@ namespace STALK_IRC
             return collection[rand.Next(collection.Count - 1)];
         }
 
-        public static string BuildSentence(string name, string classType, string levelName)
+        public static string BuildSentence(string name, string level, string section, string classType)
         {
-            string levelText = (levelNames.ContainsKey(levelName) ? levelNames[levelName] : "");
+            string levelText = (levelNames.ContainsKey(level) ? levelNames[level] : "");
             classType = classType.ToUpper();
             if (classType == "DARK_STALKER" && rand.Next(1000) == 666) // :^)
                 return "Psssh... nothin personnel... kid...";
-            string deathText = (deaths.ContainsKey(classType) ? deaths[classType] : (RandomString(genericDeaths) + "(" + classType + ") "));
+            string deathText;
+            if (deathBySection.ContainsKey(section))
+                deathText = deathBySection[section];
+            else if (deathByClass.ContainsKey(classType))
+                deathText = deathByClass[classType];
+            else
+                deathText = RandomString(genericDeaths) + "(" + classType + ") ";
             return RandomString(times) + levelText + RandomString(observance) + name.Replace('_', ' ') + deathText + RandomString(suffixes);
         }
 
@@ -115,71 +122,77 @@ namespace STALK_IRC
                 "word is ",
             });
 
-            deaths["O_ACTOR"] = " committed suicide. ";
-            deaths["S_ACTOR"] = deaths["O_ACTOR"];
-            deaths["AI_STL_S"] = " was gunned down by a stalker. ";
-            deaths["AI_STL"] = deaths["AI_STL_S"];
-            deaths["SM_BLOOD"] = " was sucked dry by a bloodsucker. ";
-            deaths["SM_BOARW"] = " was goared by a boar. ";
-            deaths["SM_BURER"] = " met their fate at the hands of a burer. ";
-            deaths["SM_CAT_S"] = " was scratched to death a cat. ";
-            deaths["SM_CHIMS"] = " was leapt on by a chimera. ";
-            deaths["SM_CONTR"] = " was zombified by a controller. ";
-            deaths["SM_DOG_S"] = " was mauled by a blind dog. ";
-            deaths["SM_FLESH"] = " somehow died to a pig. ";
-            deaths["SM_IZLOM"] = " was smashed by an izlom. ";
-            deaths["SM_GIANT"] = " was crushed by a pseudogiant. ";
-            deaths["AI_PHANT"] = " succumbed to brain damage. ";
-            deaths["SM_POLTR"] = " was killed by some invisible thing. ";
-            deaths["SM_P_DOG"] = " was hunted down by a pseudodog. ";
-            deaths["SM_DOG_P"] = " was overwhelmed by a psy dog. ";
-            deaths["SM_DOG_F"] = deaths["SM_DOG_P"];
-            deaths["AI_RAT"] = " was eaten alive by rats. ";
-            deaths["SM_SNORK"] = " was kicked to death by a snork. ";
-            deaths["SM_TUSHK"] = " was gnawed to the bone by a tushkano. ";
-            deaths["SM_ZOMBI"] = " had their brains eaten by a zombie. ";
-            deaths["C_HLCP_S"] = " was shot down by a helicopter. ";
-            deaths["SCRPTCAR"] = " became roadkill. ";
-            deaths["ZS_MBALD"] = " walked right into an anomaly. ";
-            deaths["ZS_GALAN"] = " was sucked into a vortex. ";
-            deaths["ZS_MINCE"] = deaths["ZS_GALAN"];
-            deaths["ZS_RADIO"] = " stepped into an anomalous field. ";
-            deaths["ZS_TORRD"] = " couldn't outrun a comet. ";
-            deaths["ZS_BFUZZ"] = " got tangled up in a burnt fuzz. ";	
-            deaths["Z_MBALD"] = " triggered a land mine. ";
-            deaths["Z_RADIO"] = deaths["ZS_RADIO"];
+            // TFW - they're technically Izloms
+            deathBySection["bloodsucker_flesh"] = " was sucked dry by a bloodsucker. ";
+            deathBySection["bloodsucker_weak"] = deathBySection["bloodsucker_flesh"];
+            deathBySection["bloodsucker_normal"] = deathBySection["bloodsucker_flesh"];
+            deathBySection["bloodsucker_strong"] = deathBySection["bloodsucker_flesh"];
+
+            deathByClass["O_ACTOR"] = " committed suicide. ";
+            deathByClass["S_ACTOR"] = deathByClass["O_ACTOR"];
+            deathByClass["AI_STL_S"] = " was gunned down by a stalker. ";
+            deathByClass["AI_STL"] = deathByClass["AI_STL_S"];
+            deathByClass["SM_BLOOD"] = deathBySection["bloodsucker_flesh"];
+            deathByClass["SM_BOARW"] = " was goared by a boar. ";
+            deathByClass["SM_BURER"] = " met their fate at the hands of a burer. ";
+            deathByClass["SM_CAT_S"] = " was scratched to death a cat. ";
+            deathByClass["SM_CHIMS"] = " was leapt on by a chimera. ";
+            deathByClass["SM_CONTR"] = " was zombified by a controller. ";
+            deathByClass["SM_DOG_S"] = " was mauled by a blind dog. ";
+            deathByClass["SM_FLESH"] = " somehow died to a pig. ";
+            deathByClass["SM_IZLOM"] = " was smashed by an izlom. ";
+            deathByClass["SM_GIANT"] = " was crushed by a pseudogiant. ";
+            deathByClass["AI_PHANT"] = " succumbed to brain damage. ";
+            deathByClass["SM_POLTR"] = " was killed by some invisible thing. ";
+            deathByClass["SM_P_DOG"] = " was hunted down by a pseudodog. ";
+            deathByClass["SM_DOG_P"] = " was overwhelmed by a psy dog. ";
+            deathByClass["SM_DOG_F"] = deathByClass["SM_DOG_P"];
+            deathByClass["AI_RAT"] = " was eaten alive by rats. ";
+            deathByClass["SM_SNORK"] = " was kicked to death by a snork. ";
+            deathByClass["SM_TUSHK"] = " was gnawed to the bone by a tushkano. ";
+            deathByClass["SM_ZOMBI"] = " had their brains eaten by a zombie. ";
+            deathByClass["C_HLCP_S"] = " was shot down by a helicopter. ";
+            deathByClass["SCRPTCAR"] = " became roadkill. ";
+            deathByClass["ZS_MBALD"] = " walked right into an anomaly. ";
+            deathByClass["ZS_GALAN"] = " was sucked into a vortex. ";
+            deathByClass["ZS_MINCE"] = deathByClass["ZS_GALAN"];
+            deathByClass["ZS_RADIO"] = " stepped into an anomalous field. ";
+            deathByClass["ZS_TORRD"] = " couldn't outrun a comet. ";
+            deathByClass["ZS_BFUZZ"] = " got tangled up in a burnt fuzz. ";	
+            deathByClass["Z_MBALD"] = " triggered a land mine. ";
+            deathByClass["Z_RADIO"] = deathByClass["ZS_RADIO"];
             //deaths["Z_ZONE"] = "cse_alife_anomalous_zone";
-            deaths["Z_CFIRE"] = " tripped and fell into a campfire. ";
+            deathByClass["Z_CFIRE"] = " tripped and fell into a campfire. ";
             //deaths["Z_NOGRAV"] = "cse_alife_anomalous_zone";
             //deaths["Z_TORRID"] = "cse_alife_torrid_zone";
             //deaths["Z_RUSTYH"] = "cse_alife_zone_visual";
             //deaths["Z_AMEBA"] = "cse_alife_zone_visual";
-            deaths["S_EXPLO"] = " was blown apart by an explosion. ";
-            deaths["II_EXPLO"] = deaths["S_EXPLO"];
+            deathByClass["S_EXPLO"] = " was blown apart by an explosion. ";
+            deathByClass["II_EXPLO"] = deathByClass["S_EXPLO"];
 
-            deaths["STALKER"] = " was gunned down by a loner. ";
-            deaths["BANDIT"] = " was looted by a bandit. ";
-            deaths["DOLG"] = " was removed by a Dutyer. ";
-            deaths["FREEDOM"] = " was blazed by a Freedomer. ";
-            deaths["ECOLOG"] = " was blinded by science. ";
-            deaths["KILLER"] = " was taken out by a mercenary. ";
-            deaths["MILITARY"] = " was shot down by the military. ";
-            deaths["MONOLITH"] = " was purged by a cultist. ";
-            deaths["ZOMBIED"] = " zombie. ";
-            deaths["ARENA_ENEMY"] = " lost in the Arena. ";
-            deaths["STRANGER"] = deaths["STALKER"];
-            deaths["CSKY"] = " was killed by the best faction. ";
-            deaths["RENEGADE"] = " was killed by some bandit wannabe. ";
-            deaths["ARMY"] = deaths["MILITARY"];
-            deaths["DARK_STALKER"] = " was killed by a deformed stalker. ";
+            deathByClass["STALKER"] = " was gunned down by a loner. ";
+            deathByClass["BANDIT"] = " was looted by a bandit. ";
+            deathByClass["DOLG"] = " was removed by a Dutyer. ";
+            deathByClass["FREEDOM"] = " was blazed by a Freedomer. ";
+            deathByClass["ECOLOG"] = " was blinded by science. ";
+            deathByClass["KILLER"] = " was taken out by a mercenary. ";
+            deathByClass["MILITARY"] = " was shot down by the military. ";
+            deathByClass["MONOLITH"] = " was purged by a cultist. ";
+            deathByClass["ZOMBIED"] = " zombie. ";
+            deathByClass["ARENA_ENEMY"] = " lost in the Arena. ";
+            deathByClass["STRANGER"] = deathByClass["STALKER"];
+            deathByClass["CSKY"] = " was killed by the best faction. ";
+            deathByClass["RENEGADE"] = " was killed by some bandit wannabe. ";
+            deathByClass["ARMY"] = deathByClass["MILITARY"];
+            deathByClass["DARK_STALKER"] = " was killed by a deformed stalker. ";
 
             // AMK
-            deaths["TURRETMG"] = " went down in a hail of bullets. ";
+            deathByClass["TURRETMG"] = " went down in a hail of bullets. ";
 
             // SGM
-            deaths["BANDIT_ENEMY"] = deaths["BANDIT"];
-            deaths["BANDIT_ALIES"] = deaths["BANDIT"];
-            deaths["ALFA_FORCE"] = " was eliminated by an Alpha Squad. ";
+            deathByClass["BANDIT_ENEMY"] = deathByClass["BANDIT"];
+            deathByClass["BANDIT_ALIES"] = deathByClass["BANDIT"];
+            deathByClass["ALFA_FORCE"] = " was eliminated by an Alpha Squad. ";
 
             genericDeaths.AddRange(new string[]{
                 " was killed. ",
