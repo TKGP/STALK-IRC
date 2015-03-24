@@ -59,5 +59,11 @@ namespace STALK_IRC
         {
             Close();
         }
+
+        private void ReinstallForm_HelpButtonClicked(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            new HelpForm(0).ShowDialog();
+        }
     }
 }

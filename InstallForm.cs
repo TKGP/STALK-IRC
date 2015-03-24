@@ -189,5 +189,11 @@ namespace STALK_IRC
                 return false;
             }
         }
+
+        private void InstallForm_HelpButtonClicked(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            new HelpForm(2).ShowDialog();
+        }
     }
 }

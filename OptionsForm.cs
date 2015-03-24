@@ -95,5 +95,11 @@ namespace STALK_IRC
         {
             Close();
         }
+
+        private void OptionsForm_HelpButtonClicked(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            new HelpForm(3).ShowDialog();
+        }
     }
 }

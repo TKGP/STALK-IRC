@@ -87,8 +87,13 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.checkedListBox1);
+            this.HelpButton = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "ReinstallForm";
             this.Text = "Reinstall Mods";
+            this.HelpButtonClicked += new System.ComponentModel.CancelEventHandler(this.ReinstallForm_HelpButtonClicked);
             this.Load += new System.EventHandler(this.ReinstallForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

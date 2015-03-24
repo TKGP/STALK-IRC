@@ -20,7 +20,7 @@ namespace STALK_IRC
     public partial class ClientForm : Form
     {
         // Constants
-        const string VERSION = "Beta 13";
+        const string VERSION = "Beta 14";
         const string SERVER = "irc.slashnet.org";
         const string CHANNEL = "#STALK-IRC";
         const string INPUT = @"\STALK-IRC_input.txt";
@@ -116,6 +116,12 @@ namespace STALK_IRC
         private void button3_Click(object sender, EventArgs e)
         {
             new InstallForm().ShowDialog();
+        }
+
+        private void ClientForm_HelpButtonClicked(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            new HelpForm(0).ShowDialog();
         }
 
         private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
@@ -234,8 +240,8 @@ namespace STALK_IRC
                         {
                             int lines = 0;
                             FileTryLoop(() => lines = File.ReadAllLines(logPath).Length);
-                            games[process.Id] = path;
                             socData.Add(path, new SocData(logPath, lines));
+                            games[process.Id] = path;
                             SendCommand(path, 1, "timeout", timeout);
                             SendCommand(path, 1, "chatkey", chatKey);
                             SendCommand(path, 1, "atmospheres", muhAtmospheres.ToString());
@@ -457,8 +463,9 @@ namespace STALK_IRC
         }
 
         // I can't decide if this is clever or just wank
-        private void FileTryLoop(Action lambda)
+        private bool FileTryLoop(Action lambda)
         {
+            int count = 0;
             while (true)
             {
                 try
@@ -467,11 +474,15 @@ namespace STALK_IRC
                 }
                 catch
                 {
+                    if (count > 10) 
+                        return false;
+                    count++;
                     Thread.Sleep(100);
                     continue;
                 }
                 break;
             }
+            return true;
         }
     }
 }

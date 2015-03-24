@@ -47,16 +47,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReinstallForm.cs">
+    <Compile Include="HelpForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ReinstallForm.Designer.cs">
-      <DependentUpon>ReinstallForm.cs</DependentUpon>
+    <Compile Include="HelpForm.Designer.cs">
+      <DependentUpon>HelpForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ReinstallForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReinstallForm.Designer.cs">
+      <DependentUpon>ReinstallForm.cs</DependentUpon>
     </Compile>
     <Compile Include="STALKIRCStrings.cs" />
     <Compile Include="ClientForm.cs">
@@ -106,6 +112,9 @@
     <EmbeddedResource Include="ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HelpForm.resx">
+      <DependentUpon>HelpForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ReinstallForm.resx">
       <DependentUpon>ReinstallForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -133,6 +142,10 @@
     <None Include="Resources\bind_stalker[cop].script" />
     <None Include="Resources\bind_stalker[cs].script" />
     <None Include="Resources\bind_stalker[soc].script" />
+    <None Include="Resources\help install.rtf" />
+    <None Include="Resources\help main.rtf" />
+    <None Include="Resources\help options.rtf" />
+    <None Include="Resources\help usage.rtf" />
     <None Include="Resources\stalk_irc.script" />
     <None Include="Resources\stalk_irc_clear.ltx" />
     <None Include="Resources\stalk_irc_icons.script" />

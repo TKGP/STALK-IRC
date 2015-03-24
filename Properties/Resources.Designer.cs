@@ -204,6 +204,54 @@ namespace STALK_IRC.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {\rtf1\ansi\deff3\adeflang1025
+        ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset204 Times New Roman;}{\f4\fswiss\fprq2\fcharset204 Arial;}{\f5\fnil\fprq2\fcharset204 Microsoft YaHei;}{\f6\fnil\fprq2\fcharset204 Mangal;}{\f7\fnil\fprq0\fcharset128 Mangal;}}
+        ///{\colortbl;\red0\green0\blue0;\red128\green128\blue128;}
+        ///{\stylesheet{\s0\snext0\nowidctlpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\hich\af8\la [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string helpInstall {
+            get {
+                return ResourceManager.GetString("helpInstall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {\rtf1\ansi\deff3\adeflang1025
+        ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset204 Times New Roman;}{\f4\fswiss\fprq2\fcharset204 Arial;}{\f5\fnil\fprq2\fcharset204 Mangal;}{\f6\fnil\fprq0\fcharset128 Mangal;}{\f7\froman\fprq0\fcharset128 ;}{\f8\fnil\fprq2\fcharset204 Microsoft YaHei;}}
+        ///{\colortbl;\red0\green0\blue0;\red0\green0\blue128;\red128\green128\blue128;}
+        ///{\stylesheet{\s0\snext0{\*\hyphen2\hyphl [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string helpMain {
+            get {
+                return ResourceManager.GetString("helpMain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {\rtf1\ansi\deff3\adeflang1025
+        ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset204 Times New Roman;}{\f4\fswiss\fprq2\fcharset204 Arial;}{\f5\fnil\fprq0\fcharset128 OpenSymbol{\*\falt Arial Unicode MS};}{\f6\fnil\fprq2\fcharset204 Microsoft YaHei;}{\f7\fnil\fprq2\fcharset204 Mangal;}{\f8\fnil\fprq0\fcharset128 Mangal;}}
+        ///{\colortbl;\red0\green0\blue0;\red128\green128\blue128;}
+        ///{\stylesheet{\s0\snext0\now [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string helpOptions {
+            get {
+                return ResourceManager.GetString("helpOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {\rtf1\ansi\deff3\adeflang1025
+        ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset204 Times New Roman;}{\f4\fswiss\fprq2\fcharset204 Arial;}{\f5\fnil\fprq2\fcharset204 Microsoft YaHei;}{\f6\fnil\fprq2\fcharset204 Mangal;}{\f7\fnil\fprq0\fcharset128 Mangal;}}
+        ///{\colortbl;\red0\green0\blue0;\red128\green128\blue128;}
+        ///{\stylesheet{\s0\snext0\nowidctlpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\hich\af8\la [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string helpUsage {
+            get {
+                return ResourceManager.GetString("helpUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to --[[ ----------------------------------------------------------------------------------------------
         /// File       : bind_actor.script
         /// Description: Actor Binder
@@ -327,6 +375,7 @@ namespace STALK_IRC.Properties {
         ///
         ///if stalk_irc.game == &quot;SoC&quot; or stalk_irc.game == &quot;LA&quot; then
         ///	info = Frect():set( 5053, 935, 163, 85 )
+        ///	error = Frect():set( 5053, 850, 163, 85 )
         ///	tkgp = {
         ///		SOC	= Frect():set( 5053, 0, 163, 85 ),
         ///		CS	= Frect():set( 5053, 85, 163, 85 ),
@@ -335,8 +384,7 @@ namespace STALK_IRC.Properties {
         ///		}
         ///	Loners = {
         ///		{	SOC	= Frect():set( 0, 0, 163, 85 ),
-        ///			CS	= Frect():set( 0, 85, 163, 85 ),
-        ///			COP	= Frect():s [rest of string was truncated]&quot;;.
+        ///			CS	= Frect( [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string stalkIRCIconsScript {
             get {
@@ -346,15 +394,15 @@ namespace STALK_IRC.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;w&gt;
-        ///    &lt;file name=&quot;ui\stalk_irc_icons&quot;&gt;
-        ///		&lt;texture id=&quot;si_icon_info&quot; x=&quot;5053&quot; y=&quot;935&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
-        ///		&lt;texture id=&quot;si_icon_tkgp_soc&quot; x=&quot;5053&quot; y=&quot;0&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
-        ///		&lt;texture id=&quot;si_icon_tkgp_cs&quot; x=&quot;5053&quot; y=&quot;85&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
-        ///		&lt;texture id=&quot;si_icon_tkgp_cop&quot; x=&quot;5053&quot; y=&quot;170&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
-        ///		&lt;texture id=&quot;si_icon_tkgp_la&quot; x=&quot;5053&quot; y=&quot;255&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
-        ///		
-        ///		&lt;texture id=&quot;si_icon_loner1_soc&quot; x=&quot;0&quot; y=&quot;0&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
-        ///		&lt;textur [rest of string was truncated]&quot;;.
+        ///  &lt;file name=&quot;ui\stalk_irc_icons&quot;&gt;
+        ///    &lt;texture id=&quot;si_icon_info&quot; x=&quot;5053&quot; y=&quot;935&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
+        ///    &lt;texture id=&quot;si_icon_error&quot; x=&quot;5053&quot; y=&quot;850&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
+        ///    &lt;texture id=&quot;si_icon_tkgp_soc&quot; x=&quot;5053&quot; y=&quot;0&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
+        ///    &lt;texture id=&quot;si_icon_tkgp_cs&quot; x=&quot;5053&quot; y=&quot;85&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
+        ///    &lt;texture id=&quot;si_icon_tkgp_cop&quot; x=&quot;5053&quot; y=&quot;170&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
+        ///    &lt;texture id=&quot;si_icon_tkgp_la&quot; x=&quot;5053&quot; y=&quot;255&quot; width=&quot;163&quot; height=&quot;85&quot; /&gt;
+        ///
+        ///  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string stalkIRCIconsXML {
             get {
@@ -364,15 +412,14 @@ namespace STALK_IRC.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to --| Game interface for STALK-IRC
-        ///--| Last modified: Mar 6, &apos;15
+        ///--| Last modified: Mar 8, &apos;15
         ///--| By: TKGP
         ///
         ///local UPDATEINTERVAL	= 1000						-- Time between file checks in milliseconds
         ///local INPATH			= getFS():update_path( &quot;$fs_root$&quot;, &quot;&quot; )..&quot;\\STALK-IRC_input.txt&quot;
         ///local OUTPATH			= getFS():update_path( &quot;$fs_root$&quot;, &quot;&quot; )..&quot;\\STALK-IRC_output.txt&quot;
-        ///local INPUTREGEX		= &quot;([^/]+)/([^/]+)/(.+)&quot;	-- Regular expression for parsing input
         ///local ssVer				= script_server_object_version()
-        ///game					= ( ssVer &gt;= 12 and &quot;CoP&quot; ) or ( ssVer &gt;= 8 a [rest of string was truncated]&quot;;.
+        ///game = ( ssVer &gt;= 12 and &quot;CoP&quot; ) or ( ssVer &gt;= 8 and &quot;CS&quot; ) or ( ssVer == 7 and bind_actor ~= nil and &quot;LA&quot; ) or ( ssVer &lt;= 7 and bind_stal [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string stalkIRCScript {
             get {

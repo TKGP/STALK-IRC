@@ -133,6 +133,18 @@
   <data name="csMainMenu" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ui_main_menu[cs].script;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
+  <data name="helpInstall" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\help install.rtf;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="helpMain" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\help main.rtf;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="helpOptions" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\help options.rtf;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="helpUsage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\help usage.rtf;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="laBindActor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\bind_actor[la].script;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
@@ -152,12 +164,12 @@
     <value>..\Resources\stalk_irc_icons.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="stalkIRCIconsScript" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\stalk_irc_icons.script;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\Resources\stalk_irc_icons.script;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
   <data name="stalkIRCIconsXML" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ui_stalk_irc_icons.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\Resources\ui_stalk_irc_icons.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
   <data name="stalkIRCScript" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\stalk_irc.script;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+    <value>..\Resources\stalk_irc.script;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
 </root>
