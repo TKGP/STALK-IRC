@@ -433,38 +433,45 @@ namespace STALK_IRC
 
         private async Task<bool> CheckUpdate(bool silent)
         {
-            UpdateChecker checker = new UpdateChecker("TKGP", "STALK-IRC");
-            UpdateType update = await checker.CheckUpdate();
-            if (update == UpdateType.Major || update == UpdateType.Minor)
+            try
             {
-                this.Hide();
-                timer1.Enabled = false;
-                timer3.Enabled = false;
-                SendMessage("Information", "_/_/A mandatory update to STALK-IRC is available! STALK-IRC is now disabled; check the client to update.", Color.DarkBlue);
-                SystemSounds.Asterisk.Play();
-                string notes = await checker.RenderReleaseNotes();
-                DialogResult result = new UpdateForm(notes, silent, true).ShowDialog();
-                if(result == DialogResult.Yes)
-                    checker.DownloadAsset("STALK-IRC.exe");
-                doClose = true;
-                return true;
-            }
-            else if (!updateSkipped && update == UpdateType.Patch)
-            {
-                SendMessage("Information", "_/_/An optional update to STALK-IRC is available! Check the client to update.", Color.DarkBlue);
-                SystemSounds.Asterisk.Play();
-                string notes = await checker.RenderReleaseNotes();
-                DialogResult result = new UpdateForm(notes, silent, false).ShowDialog();
-                if (result == DialogResult.Yes)
+                UpdateChecker checker = new UpdateChecker("TKGP", "STALK-IRC");
+                UpdateType update = await checker.CheckUpdate();
+                if (update == UpdateType.Major || update == UpdateType.Minor)
                 {
                     this.Hide();
                     timer1.Enabled = false;
                     timer3.Enabled = false;
-                    checker.DownloadAsset("STALK-IRC.exe");
+                    SendMessage("Information", "_/_/A mandatory update to STALK-IRC is available! STALK-IRC is now disabled; check the client to update.", Color.DarkBlue);
+                    SystemSounds.Asterisk.Play();
+                    string notes = await checker.RenderReleaseNotes();
+                    DialogResult result = new UpdateForm(notes, silent, true).ShowDialog();
+                    if (result == DialogResult.Yes)
+                        checker.DownloadAsset("STALK-IRC.exe");
                     doClose = true;
+                    return true;
                 }
-                else
-                    updateSkipped = true;
+                else if (!updateSkipped && update == UpdateType.Patch)
+                {
+                    SendMessage("Information", "_/_/An optional update to STALK-IRC is available! Check the client to update.", Color.DarkBlue);
+                    SystemSounds.Asterisk.Play();
+                    string notes = await checker.RenderReleaseNotes();
+                    DialogResult result = new UpdateForm(notes, silent, false).ShowDialog();
+                    if (result == DialogResult.Yes)
+                    {
+                        this.Hide();
+                        timer1.Enabled = false;
+                        timer3.Enabled = false;
+                        checker.DownloadAsset("STALK-IRC.exe");
+                        doClose = true;
+                    }
+                    else
+                        updateSkipped = true;
+                }
+            }
+            catch (Octokit.RateLimitExceededException)
+            {
+                // Woops
             }
             return false;
         }
