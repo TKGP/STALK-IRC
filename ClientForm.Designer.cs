@@ -135,6 +135,7 @@
             // 
             // richTextBox1
             // 
+            this.richTextBox1.HideSelection = false;
             this.richTextBox1.Location = new System.Drawing.Point(12, 231);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
