@@ -14,38 +14,36 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using Meebey.SmartIrc4net;
+using GitHubUpdate;
+using System.Media;
 
 namespace STALK_IRC
 {
     public partial class ClientForm : Form
     {
         // Constants
-        const string VERSION = "Beta 14";
-        const string SERVER = "irc.slashnet.org";
-        const string CHANNEL = "#STALK-IRC";
-        const string INPUT = @"\STALK-IRC_input.txt";
-        const string OUTPUT = @"\STALK-IRC_output.txt";
-        const string SOCINPUT = @"\gamedata\config\misc\stalk_irc.ltx";
-        const string SOCINPUTCLEAR = @"\gamedata\config\misc\stalk_irc_clear.ltx";
-        public const string REGISTRY = @"HKEY_CURRENT_USER\Software\STALK-IRC";
-        const char MAGIC = '☺';
+        private const string SERVER = "irc.slashnet.org";
+        private const string CHANNEL = "#STALK-IRC";
+        private const string INPUT = @"\STALK-IRC_input.txt";
+        private const string OUTPUT = @"\STALK-IRC_output.txt";
+        private const string SOCINPUT = @"\gamedata\config\misc\stalk_irc.ltx";
+        private const string SOCINPUTCLEAR = @"\gamedata\config\misc\stalk_irc_clear.ltx";
+        public static readonly RegistryKey REGISTRY = Registry.CurrentUser.CreateSubKey(@"Software\STALK-IRC");
+        private const char MAGIC = '☺';
+        private readonly Encoding RUENCODING = Encoding.GetEncoding(1251);
 
         // Options
-        public string name = (string)Registry.GetValue(REGISTRY, "Name", null);
-        public string faction = Regex.Replace((string)Registry.GetValue(REGISTRY, "Faction", "Loners"), " ", "");
-        public string timeout = (string)Registry.GetValue(REGISTRY, "Timeout", "5000");
-        public string chatKey = (string)Registry.GetValue(REGISTRY, "ChatKey", "DIK_APOSTROPHE");
-        public bool sendDeaths = (string)Registry.GetValue(REGISTRY, "SendDeaths", "True") == "True";
-        public bool receiveDeaths = (string)Registry.GetValue(REGISTRY, "ReceiveDeaths", "True") == "True";
-        public bool muhAtmospheres = (string)Registry.GetValue(REGISTRY, "MuhAtmospheres", "False") == "True";
+        public string name, faction, timeout, chatKey;
+        public bool sendDeaths, receiveDeaths, muhAtmospheres;
 
         // Other stuff!
         public IrcClient irc = new IrcClient();
-        Thread ircListen;
-        Dictionary<int, string> games = new Dictionary<int, string>();
-        Dictionary<string, SocData> socData = new Dictionary<string, SocData>();
-        string newVersionUrl = "";
-        bool doClose = false; // Close()ing at arbitrary positions seems to be a bad idea so this defers it to one of the timers
+        private Thread ircListen;
+        private Dictionary<int, string> games = new Dictionary<int, string>();
+        private Dictionary<string, SocData> socData = new Dictionary<string, SocData>();
+        private string lastGame = "SoC";
+        private bool updateSkipped = false;
+        private bool doClose = false; // Close()ing at arbitrary positions seems to be a bad idea so this defers it to one of the timers
 
         public ClientForm()
         {
@@ -55,31 +53,39 @@ namespace STALK_IRC
 
         // Form events
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
-            string lastVersion = (string)Registry.GetValue(REGISTRY, "Version", null);
-            if (lastVersion != VERSION)
-            {
-                if (lastVersion == null)
-                    MessageBox.Show("Thank you for downloading STALK-IRC " + VERSION + ".\nPlease read the readme, if you haven't already.", "Welcome!");
-                else
-                {
-                    string previousGames = (string)Registry.GetValue(REGISTRY, "GameList", "");
-                    if (previousGames != "")
-                        new ReinstallForm(previousGames).ShowDialog();
-                    else
-                        MessageBox.Show("Thank you for downloading STALK-IRC " + VERSION + ".\nDue to the update, remember to re-install the mod component for each of your games before use.",
-                            "Update!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
-                Registry.SetValue(REGISTRY, "Version", VERSION);
-            }
+            this.Text = "STALK-IRC Client " + Application.ProductVersion;
+
+            if (await CheckUpdate(false))
+                return;
+
+            name = (string)REGISTRY.GetValue("Name", null);
+            faction = Regex.Replace((string)REGISTRY.GetValue("Faction", "Loners"), " ", "");
+            timeout = (string)REGISTRY.GetValue("Timeout", "5000");
+            chatKey = (string)REGISTRY.GetValue("ChatKey", "DIK_APOSTROPHE");
+            sendDeaths = (string)REGISTRY.GetValue("SendDeaths", "True") == "True";
+            receiveDeaths = (string)REGISTRY.GetValue("ReceiveDeaths", "True") == "True";
+            muhAtmospheres = (string)REGISTRY.GetValue("MuhAtmospheres", "False") == "True";
 
             STALKIRCStrings.Populate();
             if (name == null)
             {
                 name = STALKIRCStrings.GenerateName();
-                Registry.SetValue(REGISTRY, "Name", name);
+                REGISTRY.SetValue("Name", name);
             }
+
+            string lastVersion = (string)REGISTRY.GetValue("Version", null);
+            if (lastVersion != Application.ProductVersion)
+            {
+                string previousGames = (string)REGISTRY.GetValue("GameList", "");
+                if (previousGames != "")
+                    new ReinstallForm(previousGames).ShowDialog();
+                else
+                    MessageBox.Show("Thank you for downloading STALK-IRC " + Application.ProductVersion + ".\nDue to the update, remember to re-install the mod component for each of your games before use.",
+                        "Update!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            REGISTRY.SetValue("Version", Application.ProductVersion);
 
             irc.Encoding = Encoding.UTF8;
             irc.SendDelay = 200;
@@ -88,10 +94,9 @@ namespace STALK_IRC
             irc.OnChannelMessage += new IrcEventHandler(OnChannelMessage);
             irc.OnJoin += new JoinEventHandler(OnJoin);
             irc.OnNickChange += new NickChangeEventHandler(OnNickChange);
-            irc.OnTopic += new TopicEventHandler(OnTopic);
-            irc.OnTopicChange += new TopicChangeEventHandler(OnTopicChange);
+            irc.OnQueryMessage += new IrcEventHandler(OnChannelMessage);
             irc.Connect(SERVER, 6667);
-            irc.Login(name, "STALK-IRC Client " + VERSION);
+            irc.Login(name, "STALK-IRC Client " + Application.ProductVersion);
             irc.RfcJoin(CHANNEL);
             ircListen = new Thread(irc.Listen);
             ircListen.Start();
@@ -100,12 +105,17 @@ namespace STALK_IRC
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            Hide();
+            timer1.Enabled = false;
+            timer2.Enabled = false;
+            timer3.Enabled = false;
             if (irc.IsConnected)
             {
                 irc.RfcQuit();
                 irc.Disconnect();
             }
-            ircListen.Join();
+            if (ircListen != null)
+                ircListen.Join();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -133,19 +143,46 @@ namespace STALK_IRC
                 else
                 {
                     textBox4.BackColor = Color.White;
-                    irc.SendMessage(SendType.Message, CHANNEL, faction + "/SoC☺" + textBox4.Text);
-                    SendMessage(irc.Nickname, faction + "/SoC/" + textBox4.Text);
-                    textBox4.Text = "";
+                    Match match = Regex.Match(textBox4.Text, "^/([^ ]+) ?(.*)");
+                    if (false && match.Success)
+                    {
+                        switch (match.Groups[1].Value)
+                        {
+                            case "w":
+                            case "who":
+                            case "list":
+
+                                textBox4.Text = "";
+                                break;
+                            case "msg":
+                            case "q":
+                            case "query":
+                            case "pm":
+
+                                textBox4.Text = "";
+                                break;
+                            case "help":
+                            case "?":
+                                //SendClientText("Available commands: ?/help - displays this message; w/who/list - lists all online users; q/query/msg/pm [username] [message] - sends a private message to the specified user");
+                                textBox4.Text = "";
+                                break;
+                            default:
+                                textBox4.Text = "Unknown command \"" + match.Groups[1].Value + "\"";
+                                textBox4.BackColor = Color.LightPink;
+                                return;
+                        }
+                    }
+                    else
+                    {
+                        irc.SendMessage(SendType.Message, CHANNEL, faction + "/" + lastGame + "☺" + textBox4.Text);
+                        SendMessage(irc.Nickname, faction + "/" + lastGame + "/" + textBox4.Text);
+                        textBox4.Text = "";
+                    }
                 }
             }
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start(newVersionUrl);
-            Close();
-        }
-
+        // Checking for new games every 10 seconds
         private void timer1_Tick(object sender, EventArgs e)
         {
             // Prune closed games
@@ -178,7 +215,7 @@ namespace STALK_IRC
                     {
                         try
                         {
-                            File.AppendAllText(path + INPUT, "");
+                            File.AppendAllText(path + INPUT, "", RUENCODING);
                         }
                         catch (Exception ex)
                         {
@@ -193,7 +230,7 @@ namespace STALK_IRC
                     {
                         string logPath = "";
                         string fsGame = "";
-                        FileTryLoop(() => fsGame = File.ReadAllText(path + @"\fsgame.ltx"));
+                        FileTryLoop(() => fsGame = File.ReadAllText(path + @"\fsgame.ltx", RUENCODING));
                         // Strip comments
                         fsGame = Regex.Replace(fsGame, ";.+", "");
                         Match appDataMatch = Regex.Match(fsGame, @"\$app_data_root\$.+");
@@ -234,12 +271,12 @@ namespace STALK_IRC
                         }
 
                         string logText = "";
-                        FileTryLoop(() => logText = File.ReadAllText(logPath));
+                        FileTryLoop(() => logText = File.ReadAllText(logPath, RUENCODING));
                         // Yay, it's SoC
                         if (logText.Contains("~#stalk-irc "))
                         {
                             int lines = 0;
-                            FileTryLoop(() => lines = File.ReadAllLines(logPath).Length);
+                            FileTryLoop(() => lines = File.ReadAllLines(logPath, RUENCODING).Length);
                             socData.Add(path, new SocData(logPath, lines));
                             games[process.Id] = path;
                             SendCommand(path, 1, "timeout", timeout);
@@ -251,6 +288,7 @@ namespace STALK_IRC
             }
         }
 
+        // Checking for input from games every second
         private void timer2_Tick(object sender, EventArgs e)
         {
             if (doClose)
@@ -261,7 +299,7 @@ namespace STALK_IRC
                 if (socData.ContainsKey(path))
                 {
                     string[] logLines = { };
-                    FileTryLoop(() => logLines = File.ReadAllLines(socData[path].logPath));
+                    FileTryLoop(() => logLines = File.ReadAllLines(socData[path].logPath, RUENCODING));
                     if (logLines.Length < socData[path].lastLines)
                         socData[path].lastLines = 0;
                     for (int index = socData[path].lastLines; index != logLines.Length; index++)
@@ -277,8 +315,8 @@ namespace STALK_IRC
                     string[] lineArray = { };
                     FileTryLoop(() =>
                     {
-                        lineArray = File.ReadAllLines(path + OUTPUT);
-                        File.WriteAllText(path + OUTPUT, "");
+                        lineArray = File.ReadAllLines(path + OUTPUT, RUENCODING);
+                        File.WriteAllText(path + OUTPUT, "", RUENCODING);
                     });
                     foreach (string line in lineArray)
                         lines.Add(line);
@@ -301,6 +339,7 @@ namespace STALK_IRC
                             case "2": // Normal message
                                 Match messageMatch = Regex.Match(arguments, "([^/]+)/(.+)");
                                 game = messageMatch.Groups[1].Value;
+                                lastGame = game;
                                 message = messageMatch.Groups[2].Value;
                                 irc.SendMessage(SendType.Message, CHANNEL, faction + "/" + game + MAGIC + message);
                                 SendMessage(irc.Nickname, faction + "/" + game + "/" + message);
@@ -310,17 +349,18 @@ namespace STALK_IRC
                                 {
                                     Match deathMatch = Regex.Match(arguments, "([^/]+)/([^/]+)/([^/]+)/(.+)");
                                     game = deathMatch.Groups[1].Value;
+                                    lastGame = game;
                                     string level = deathMatch.Groups[2].Value;
                                     string section = deathMatch.Groups[3].Value;
                                     string classType = deathMatch.Groups[4].Value;
                                     string randName = STALKIRCStrings.GenerateName();
                                     message = "Loners/" + game + MAGIC + STALKIRCStrings.BuildSentence(irc.Nickname, level, section, classType);
                                     irc.SendMessage(SendType.Message, CHANNEL, randName + "☻" + message);
-                                    SendMessage(randName, message.Replace(MAGIC, '/'));
+                                    SendMessage(randName, message.Replace(MAGIC, '/'), Color.DarkRed);
                                 }
                                 break;
                             default:
-                                SendMessage("Error: Client got bad command.", "_/_/Path: " + path + " | Line: " + line);
+                                SendMessage("Error: Client got bad command.", "_/_/Path: " + path + " | Line: " + line, Color.LimeGreen);
                                 break;
                         }
                     }
@@ -328,42 +368,14 @@ namespace STALK_IRC
             }
         }
 
+        // Checking for updates every minute
+        private async void timer3_Tick(object sender, EventArgs e)
+        {
+            await CheckUpdate(true);
+        }
+
 
         // IRC events
-
-        private void OnTopic(object sender, TopicEventArgs e)
-        {
-            Match match = Regex.Match(e.Topic, @"Latest version: ([^\|]+) \| Download: ([^ ]+)");
-            if (match.Success)
-            {
-                if (VERSION != match.Groups[1].Value)
-                {
-                    irc.RfcQuit();
-                    irc.Disconnect();
-                    newVersionUrl = match.Groups[2].Value;
-                    Invoke(new Action(() =>
-                    {
-                        textBox4.Enabled = false;
-                        timer1.Enabled = false;
-                        timer2.Enabled = false;
-                        label1.Hide();
-                        linkLabel1.Text = "New version: " + match.Groups[1].Value + " - Click to open in browser!";
-                        linkLabel1.Show();
-                    }));
-                    SendMessage("Information", "_/_/A new version of STALK-IRC is available! STALK-IRC is now disabled; check the client to update.");
-                }
-                else
-                    Invoke(new Action(() => label1.Text = "Latest version: " + match.Groups[1].Value + " - Up to date!"));
-            }
-            else
-                Invoke(new Action(() => label1.Text = ""));
-        }
-
-        private void OnTopicChange(object sender, TopicChangeEventArgs e)
-        {
-            TopicEventArgs topic = new TopicEventArgs(null, null, e.NewTopic);
-            OnTopic(null, topic);
-        }
 
         private void OnRawMessage(object sender, IrcEventArgs e)
         {
@@ -373,6 +385,7 @@ namespace STALK_IRC
         private void OnChannelMessage(object sender, IrcEventArgs e)
         {
             string name = "", message = "";
+            Color color = e.Data.Type == ReceiveType.QueryMessage ? Color.DeepPink : Color.Black;
             Match match = Regex.Match(e.Data.Message, "(.*)☻(.+)");
             if (match.Success)
             {
@@ -380,6 +393,7 @@ namespace STALK_IRC
                     return;
                 name = match.Groups[1].Value;
                 message = match.Groups[2].Value;
+                color = Color.DarkRed;
             }
             else
             {
@@ -391,20 +405,20 @@ namespace STALK_IRC
                 match = Regex.Match(message, "([^/]+)/(.+)" + MAGIC);
                 if (!match.Success || !STALKIRCStrings.validFactions.Contains(match.Groups[1].Value) || !STALKIRCStrings.validGames.Contains(match.Groups[2].Value.ToUpper()))
                     return;
-                SendMessage(name, message.Replace(MAGIC, '/'));
+                SendMessage(name, message.Replace(MAGIC, '/'), color);
             }
             else
-                SendMessage(name, "Loners/SoC/" + message);
+                SendMessage(name, "Loners/SoC/" + message, color);
         }
 
         private void OnJoin(object sender, JoinEventArgs e)
         {
-            SendMessage("Information", "_/_/" + e.Who.Replace('_', ' ') + " has logged on to the network.");
+            SendMessage("Information", "_/_/" + e.Who.Replace('_', ' ') + " has logged on to the network.", Color.DarkBlue);
         }
 
         private void OnNickChange(object sender, NickChangeEventArgs e)
         {
-            SendMessage("Information", "_/_/" + e.NewNickname.Replace('_', ' ') + " has logged on to the network.");
+            SendMessage("Information", "_/_/" + e.NewNickname.Replace('_', ' ') + " has logged on to the network.", Color.DarkBlue);
         }
 
 
@@ -417,10 +431,62 @@ namespace STALK_IRC
             MessageBox.Show(message, "Fatal error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        private async Task<bool> CheckUpdate(bool silent)
+        {
+            UpdateChecker checker = new UpdateChecker("TKGP", "STALK-IRC");
+            UpdateType update = await checker.CheckUpdate();
+            if (update == UpdateType.Major || update == UpdateType.Minor)
+            {
+                this.Hide();
+                timer1.Enabled = false;
+                timer3.Enabled = false;
+                SendMessage("Information", "_/_/A mandatory update to STALK-IRC is available! STALK-IRC is now disabled; check the client to update.", Color.DarkBlue);
+                SystemSounds.Asterisk.Play();
+                string notes = await checker.RenderReleaseNotes();
+                DialogResult result = new UpdateForm(notes, silent, true).ShowDialog();
+                if(result == DialogResult.Yes)
+                    checker.DownloadAsset("STALK-IRC.exe");
+                doClose = true;
+                return true;
+            }
+            else if (!updateSkipped && update == UpdateType.Patch)
+            {
+                SendMessage("Information", "_/_/An optional update to STALK-IRC is available! Check the client to update.", Color.DarkBlue);
+                SystemSounds.Asterisk.Play();
+                string notes = await checker.RenderReleaseNotes();
+                DialogResult result = new UpdateForm(notes, silent, false).ShowDialog();
+                if (result == DialogResult.Yes)
+                {
+                    this.Hide();
+                    timer1.Enabled = false;
+                    timer3.Enabled = false;
+                    checker.DownloadAsset("STALK-IRC.exe");
+                    doClose = true;
+                }
+                else
+                    updateSkipped = true;
+            }
+            return false;
+        }
+
         private void SendMessage(string name, string message)
         {
+            SendMessage(name, message, Color.Black);
+        }
+
+        private void SendMessage(string name, string message, Color color)
+        {
             Match match = Regex.Match(message, "[^/]+/[^/]+/(.+)");
-            Invoke(new Action(() => textBox3.AppendText((textBox3.Lines.Length != 0 ? "\r\n" : "") + name.Replace('_', ' ') + "> " + match.Groups[1].Value)));
+            Invoke(new Action(() =>
+            {
+                richTextBox1.AppendText((richTextBox1.Lines.Length != 0 ? "\r\n" : ""));
+                richTextBox1.SelectionColor = color;
+                richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
+                richTextBox1.AppendText(name.Replace('_', ' ') + "> ");
+                richTextBox1.SelectionColor = Color.Black;
+                richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Regular);
+                richTextBox1.AppendText(match.Groups[1].Value);
+            }));
             string line = "2/" + name + "/" + message;
             foreach (string path in games.Values)
             {
@@ -434,7 +500,7 @@ namespace STALK_IRC
                 else
                     newPath += INPUT;
                 newLine += "\r\n";
-                FileTryLoop(() => File.AppendAllText(newPath, newLine));
+                FileTryLoop(() => File.AppendAllText(newPath, newLine, RUENCODING));
             }
         }
 
@@ -453,7 +519,7 @@ namespace STALK_IRC
                 line = action + "/" + arg1 + "/" + arg2;
             }
             line += "\r\n";
-            FileTryLoop(() => File.AppendAllText(newPath, line));
+            FileTryLoop(() => File.AppendAllText(newPath, line, RUENCODING));
         }
 
         public void SendCommandAll(int action, string arg1, string arg2)
@@ -474,7 +540,7 @@ namespace STALK_IRC
                 }
                 catch
                 {
-                    if (count > 10) 
+                    if (count > 10)
                         return false;
                     count++;
                     Thread.Sleep(100);

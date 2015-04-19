@@ -1,5 +1,5 @@
 ﻿--| Game interface for STALK-IRC
---| Last modified: Mar 8, '15
+--| Last modified: Apr 19, '15
 --| By: TKGP
 
 local UPDATEINTERVAL	= 1000						-- Time between file checks in milliseconds
@@ -27,11 +27,16 @@ function onUpdate()
 		if game == "SoC" then
 			sendOutput( "1" )
 		else
-			local output = io.open( OUTPATH, "w" )
-			if not output then
-				giveNews( "Error: Initial output write failed.", "STALK-IRC is now disabled; try running the game as Administrator." )
-				disable = true
-				return
+			local count = 0
+			local output
+			while not output do
+				if count > 100 then
+					giveNews( "Error: Initial output write failed.", "STALK-IRC is now disabled; try running the game as Administrator.", stalk_irc_icons.error )
+					disable = true
+					return
+				end
+				count = count + 1
+				output = io.open( OUTPATH, "w" )
 			end
 			output:write( "1\n" )
 			output:close()
@@ -55,7 +60,7 @@ function onUpdate()
 			local input
 			while not input do
 				if count > 100 then
-					giveNews( "Error: Input read timed out.", "STALK-IRC is now disabled; try running the game as Administrator." )
+					giveNews( "Error: Input read timed out.", "STALK-IRC is now disabled; try running the game as Administrator.", stalk_irc_icons.error )
 					disable = true
 					return
 				end
@@ -165,7 +170,7 @@ end
 function sendOutput( message )
 	if game == "SoC" then
 		local console = get_console()
-		-- RIP in peace capital letters
+		-- Rest in RIP capital letters
 		console:execute( "load ~#stalk-irc "..message )
 		console:execute( "flush" )
 	else
@@ -173,7 +178,7 @@ function sendOutput( message )
 		local output
 		while not output do
 			if count > 100 then
-				giveNews( "Error: Output write timed out.", "STALK-IRC is now disabled; try running the game as Administrator." )
+				giveNews( "Error: Output write timed out.", "STALK-IRC is now disabled; try running the game as Administrator.", stalk_irc_icons.error )
 				disable = true
 				return
 			end

@@ -36,13 +36,12 @@
             this.button3 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.button1 = new System.Windows.Forms.Button();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.timer3 = new System.Windows.Forms.Timer(this.components);
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // textBox1
@@ -98,16 +97,6 @@
             this.label3.Text = "Channel Activity";
             this.toolTip1.SetToolTip(this.label3, "Mirrors the text being sent to your games");
             // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(12, 230);
-            this.textBox3.Multiline = true;
-            this.textBox3.Name = "textBox3";
-            this.textBox3.ReadOnly = true;
-            this.textBox3.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox3.Size = new System.Drawing.Size(595, 182);
-            this.textBox3.TabIndex = 8;
-            // 
             // textBox4
             // 
             this.textBox4.BackColor = System.Drawing.SystemColors.Window;
@@ -138,23 +127,20 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // linkLabel1
+            // timer3
             // 
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(9, 454);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(0, 13);
-            this.linkLabel1.TabIndex = 13;
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            this.timer3.Enabled = true;
+            this.timer3.Interval = 60000;
+            this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // label1
+            // richTextBox1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 454);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(70, 13);
-            this.label1.TabIndex = 14;
-            this.label1.Text = "Connecting...";
+            this.richTextBox1.Location = new System.Drawing.Point(12, 231);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.ReadOnly = true;
+            this.richTextBox1.Size = new System.Drawing.Size(595, 181);
+            this.richTextBox1.TabIndex = 13;
+            this.richTextBox1.Text = "";
             // 
             // ClientForm
             // 
@@ -162,12 +148,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(621, 480);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.linkLabel1);
+            this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.textBox4);
-            this.Controls.Add(this.textBox3);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button3);
@@ -195,13 +179,12 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.LinkLabel linkLabel1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Timer timer3;
+        private System.Windows.Forms.RichTextBox richTextBox1;
     }
 }
 

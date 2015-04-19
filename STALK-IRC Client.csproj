@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9489F0C9-4394-4E21-89DC-39D356F9B2E2}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>STALK_IRC</RootNamespace>
+    <AssemblyName>STALK-IRC</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GitHubUpdate">
+      <HintPath>..\packages\GitHubUpdate.1.2.0.0\lib\net45\GitHubUpdate.dll</HintPath>
+    </Reference>
+    <Reference Include="Octokit">
+      <HintPath>..\packages\Octokit.0.3.4\lib\net45\Octokit.dll</HintPath>
+    </Reference>
+    <Reference Include="Semver">
+      <HintPath>..\packages\semver.1.1.2\lib\net451\Semver.dll</HintPath>
+    </Reference>
+    <Reference Include="SmarIrc4net">
+      <HintPath>..\packages\SmartIrc4net.0.4.5.1\lib\net40\SmarIrc4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HelpForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HelpForm.Designer.cs">
+      <DependentUpon>HelpForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ReinstallForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReinstallForm.Designer.cs">
+      <DependentUpon>ReinstallForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="STALKIRCStrings.cs" />
+    <Compile Include="ClientForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ClientForm.Designer.cs">
+      <DependentUpon>ClientForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="InstallForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InstallForm.Designer.cs">
+      <DependentUpon>InstallForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OptionsForm.Designer.cs">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SocData.cs" />
+    <Compile Include="UpdateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UpdateForm.Designer.cs">
+      <DependentUpon>UpdateForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="ClientForm.resx">
+      <DependentUpon>ClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HelpForm.resx">
+      <DependentUpon>HelpForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReinstallForm.resx">
+      <DependentUpon>ReinstallForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InstallForm.resx">
+      <DependentUpon>InstallForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OptionsForm.resx">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UpdateForm.resx">
+      <DependentUpon>UpdateForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="Resources\bind_actor[la].script" />
+    <None Include="Resources\bind_stalker[cop].script" />
+    <None Include="Resources\bind_stalker[cs].script" />
+    <None Include="Resources\bind_stalker[soc].script" />
+    <None Include="Resources\help install.rtf" />
+    <None Include="Resources\help main.rtf" />
+    <None Include="Resources\help options.rtf" />
+    <None Include="Resources\help usage.rtf" />
+    <None Include="Resources\stalk_irc.script" />
+    <None Include="Resources\stalk_irc_clear.ltx" />
+    <None Include="Resources\stalk_irc_icons.script" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon.ico" />
+    <None Include="Resources\ui_chatinput.xml" />
+    <None Include="Resources\ui_main_menu[cop].script" />
+    <None Include="Resources\ui_main_menu[cs].script" />
+    <None Include="Resources\ui_main_menu[la].script" />
+    <None Include="Resources\ui_main_menu[soc].script" />
+    <None Include="Resources\ui_stalk_irc_icons.xml" />
+    <None Include="Resources\stalk_irc_icons.dds" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

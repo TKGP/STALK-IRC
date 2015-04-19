@@ -132,7 +132,7 @@ namespace STALK_IRC
                 "Oh well.",
                 "Hah!",
                 "Hope the info is useful.",
-                "He had it coming",
+                "He had it coming.",
                 "Guess he won't be needing that gear any more...",
                 "That's what happens when you let your guard down.",
                 "Heh.",
@@ -401,6 +401,12 @@ namespace STALK_IRC
             // World of War
             //levelNames["zakordon"] = "";
 
+            // Spatial Anomaly
+            //levelNames["black_valley"] = "";
+            levelNames["labx7"] = levelNames["la17u_labx7"];
+            levelNames["prostranstvenniy_puzir"] = "in the Spatial Bubble";
+            //levelNames["station_digger"] = "";
+            
 
             // Random stalker names from vanilla SoC
 

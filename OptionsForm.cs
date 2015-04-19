@@ -24,7 +24,7 @@ namespace STALK_IRC
         private void Options_Load(object sender, EventArgs e)
         {
             textBox1.Text = parent.name;
-            comboBox1.SelectedItem = (string)Registry.GetValue(ClientForm.REGISTRY, "Faction", "Loners");
+            comboBox1.SelectedItem = (string)ClientForm.REGISTRY.GetValue("Faction", "Loners");
             textBox2.Text = parent.timeout;
             comboBox2.SelectedItem = parent.chatKey;
             checkBox1.Checked = parent.sendDeaths;
@@ -77,14 +77,14 @@ namespace STALK_IRC
                 parent.muhAtmospheres = checkBox3.Checked;
                 parent.SendCommandAll(1, "atmospheres", checkBox3.Checked.ToString());
 
-                string registry = ClientForm.REGISTRY;
-                Registry.SetValue(registry, "Name", name);
-                Registry.SetValue(registry, "Faction", comboBox1.Text);
-                Registry.SetValue(registry, "Timeout", textBox2.Text);
-                Registry.SetValue(registry, "ChatKey", comboBox2.Text);
-                Registry.SetValue(registry, "SendDeaths", checkBox1.Checked);
-                Registry.SetValue(registry, "ReceiveDeaths", checkBox2.Checked);
-                Registry.SetValue(registry, "MuhAtmospheres", checkBox3.Checked);
+                RegistryKey registry = ClientForm.REGISTRY;
+                registry.SetValue("Name", name);
+                registry.SetValue("Faction", comboBox1.Text);
+                registry.SetValue("Timeout", textBox2.Text);
+                registry.SetValue("ChatKey", comboBox2.Text);
+                registry.SetValue("SendDeaths", checkBox1.Checked);
+                registry.SetValue("ReceiveDeaths", checkBox2.Checked);
+                registry.SetValue("MuhAtmospheres", checkBox3.Checked);
 
                 Close();
             }

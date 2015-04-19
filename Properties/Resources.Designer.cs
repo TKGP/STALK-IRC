@@ -217,7 +217,7 @@ namespace STALK_IRC.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to {\rtf1\ansi\deff3\adeflang1025
-        ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset204 Times New Roman;}{\f4\fswiss\fprq2\fcharset204 Arial;}{\f5\fnil\fprq2\fcharset204 Mangal;}{\f6\fnil\fprq0\fcharset128 Mangal;}{\f7\froman\fprq0\fcharset128 ;}{\f8\fnil\fprq2\fcharset204 Microsoft YaHei;}}
+        ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset204 Times New Roman;}{\f4\fswiss\fprq2\fcharset204 Arial;}{\f5\froman\fprq0\fcharset128 ;}{\f6\fnil\fprq2\fcharset204 Microsoft YaHei;}{\f7\fnil\fprq2\fcharset204 Mangal;}{\f8\fnil\fprq0\fcharset128 Mangal;}}
         ///{\colortbl;\red0\green0\blue0;\red0\green0\blue128;\red128\green128\blue128;}
         ///{\stylesheet{\s0\snext0{\*\hyphen2\hyphl [rest of string was truncated]&quot;;.
         /// </summary>
@@ -241,9 +241,9 @@ namespace STALK_IRC.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to {\rtf1\ansi\deff3\adeflang1025
-        ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset204 Times New Roman;}{\f4\fswiss\fprq2\fcharset204 Arial;}{\f5\fnil\fprq2\fcharset204 Microsoft YaHei;}{\f6\fnil\fprq2\fcharset204 Mangal;}{\f7\fnil\fprq0\fcharset128 Mangal;}}
+        ///{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset204 Times New Roman;}{\f4\fswiss\fprq2\fcharset204 Arial;}{\f5\fnil\fprq2\fcharset204 Mangal;}{\f6\fnil\fprq0\fcharset128 Mangal;}{\f7\froman\fprq0\fcharset128 ;}{\f8\fnil\fprq2\fcharset204 Microsoft YaHei;}}
         ///{\colortbl;\red0\green0\blue0;\red128\green128\blue128;}
-        ///{\stylesheet{\s0\snext0\nowidctlpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\hich\af8\la [rest of string was truncated]&quot;;.
+        ///{\stylesheet{\s0\snext0{\*\hyphen2\hyphlead2\hyphtrail2\hyphm [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string helpUsage {
             get {

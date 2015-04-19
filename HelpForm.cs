@@ -27,7 +27,7 @@ namespace STALK_IRC
         private void HelpForm_HelpButtonClicked(object sender, CancelEventArgs e)
         {
             e.Cancel = true;
-            MessageBox.Show("You're already on the Help page!","Help, Help!",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+            MessageBox.Show("You're already on the Help page!", "Help, Help!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         private void richTextBox_LinkClicked(object sender, LinkClickedEventArgs e)

@@ -51,7 +51,7 @@ namespace STALK_IRC
                 else
                     MessageBox.Show("Error!", "Installation failed for " + path + "\nVerify that it still exists and try again from the manual install menu.");
             }
-            Registry.SetValue(ClientForm.REGISTRY, "GameList", newRegistry);
+            ClientForm.REGISTRY.SetValue("GameList", newRegistry);
             Close();
         }
 

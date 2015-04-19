@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("STALK-IRC")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("STALK-IRC")]
-[assembly: AssemblyCopyright("Copyright © 2015")]
+[assembly: AssemblyCompany("TKGP Incorporated")]
+[assembly: AssemblyProduct("STALK-IRC Client")]
+[assembly: AssemblyCopyright("Copyright © 20XX")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.14.*")]
-[assembly: AssemblyFileVersion("0.14.0.0")]
+[assembly: AssemblyVersion("0.15.0.0")]
+//[assembly: AssemblyFileVersion("0.15.0.0")]

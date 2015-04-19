@@ -26,7 +26,7 @@ namespace STALK_IRC
 
         private void InstallForm_Load(object sender, EventArgs e)
         {
-            games = (string)Registry.GetValue(ClientForm.REGISTRY, "GameList", "");
+            games = (string)ClientForm.REGISTRY.GetValue("GameList", "");
             foreach (Match match in Regex.Matches(games, @"([^\|]+)\|([^\|]+)"))
             {
                 string game = match.Groups[1].Value;
@@ -34,13 +34,14 @@ namespace STALK_IRC
                 oldGames[path] = game;
             }
 
-            lastInstall = (string)Registry.GetValue(ClientForm.REGISTRY, "LastInstall", "");
+            lastInstall = (string)ClientForm.REGISTRY.GetValue("LastInstall", "");
+            textBox1.Text = lastInstall;
         }
 
         private void InstallForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Registry.SetValue(ClientForm.REGISTRY, "GameList", games);
-            Registry.SetValue(ClientForm.REGISTRY, "LastInstall", lastInstall);
+            ClientForm.REGISTRY.SetValue("GameList", games);
+            ClientForm.REGISTRY.SetValue("LastInstall", lastInstall);
         }
 
         private void button2_Click(object sender, EventArgs e)
