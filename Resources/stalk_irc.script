@@ -1,5 +1,5 @@
 ﻿--| Game interface for STALK-IRC
---| Last modified: Apr 19, '15
+--| Last modified: Apr 23, '15
 --| By: TKGP
 
 local UPDATEINTERVAL	= 1000						-- Time between file checks in milliseconds
@@ -78,7 +78,7 @@ function onUpdate()
 	end
 	for line in fileText:gmatch( "[^\n]+" ) do
 		local command, arguments = line:match( "([^/]+)/(.+)" )
-		if command == "1" then
+		if command == "1" then -- Set settings
 			local variable, value = arguments:match( "([^/]+)/(.+)" )
 			if variable == "timeout" then
 				timeout = tonumber( value )
@@ -87,14 +87,19 @@ function onUpdate()
 			elseif variable == "atmospheres" then
 				muhAtmospheres = value == "True"
 			end
-		elseif command == "2" and not ( muhAtmospheres and atmosphericLevels[ level.name() ] ) then
-			local name, faction, gameIcon, message = arguments:match( "([^/]+)/([^/]+)/([^/]+)/(.+)" )
+		elseif not ( muhAtmospheres and atmosphericLevels[ level.name() ] ) then
+			local name, to, faction, gameIcon, message, icon
+			if command == "2" then -- Normal message
+				name, faction, gameIcon, message = arguments:match( "([^/]+)/([^/]+)/([^/]+)/(.+)" )
+			elseif command == "3" then -- Query
+				name, to, faction, gameIcon, message = arguments:match( "([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.+)" )
+			end
 			if not name or not faction or not gameIcon or not message then
 				giveNews( "Error: Bad format in message.", "Line: "..line, stalk_irc_icons.error )
 			else
 				gameIcon = gameIcon:upper()
 				local icon
-				if name == "TKGP" or name == "Toshka_Gospod" then -- :^)
+				if name == "TKGP" or name:upper() == "TOSHKA_GOSPOD" then -- :^)
 					icon = stalk_irc_icons.tkgp[ gameIcon ]
 				elseif name == "Information" then
 					icon = stalk_irc_icons.info
@@ -113,7 +118,10 @@ function onUpdate()
 					icon = stalk_irc_icons[ faction ][ math.random( #stalk_irc_icons[ faction ] ) ][ gameIcon ]
 					math.randomseed( oldRandom )
 				end
-				giveNews( name:gsub( "_", " " ), message, icon )
+				if to then
+					name = name.." -> "..to
+				end
+				giveNews( name, message, icon )
 			end
 		end
 	end

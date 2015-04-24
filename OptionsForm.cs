@@ -35,7 +35,7 @@ namespace STALK_IRC
         // Name - Random
         private void button1_Click(object sender, EventArgs e)
         {
-            textBox1.Text = STALKIRCStrings.GenerateName();
+            textBox1.Text = SIStrings.GenerateName();
         }
 
         // Confirm

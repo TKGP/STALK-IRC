@@ -80,7 +80,7 @@
     <Compile Include="ReinstallForm.Designer.cs">
       <DependentUpon>ReinstallForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="STALKIRCStrings.cs" />
+    <Compile Include="SIStrings.cs" />
     <Compile Include="ClientForm.cs">
       <SubType>Form</SubType>
     </Compile>

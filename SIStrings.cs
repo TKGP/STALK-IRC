@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace STALK_IRC
 {
-    class STALKIRCStrings
+    class SIStrings
     {
         static List<string> times = new List<string>();
         static List<string> observance = new List<string>();
@@ -70,7 +70,7 @@ namespace STALK_IRC
 
         public static string GenerateName()
         {
-            return RandomString(fNames) + "_" + RandomString(sNames);
+            return RandomString(fNames) + " " + RandomString(sNames);
         }
 
         public static void Populate()
@@ -565,7 +565,7 @@ namespace STALK_IRC
 	            "Beekeeper",
 	            "Beetle",
 	            "Big-eyed",
-	            "Big_Fellow",
+	            "Big Fellow",
 	            "Bitter",
 	            "Black",
 	            "Blessed",
@@ -710,7 +710,7 @@ namespace STALK_IRC
 	            "Dumpling",
 	            "Duremar",
 	            "Dynamite",
-	            "Eagle_owl",
+	            "Eagle owl",
 	            "Eared",
 	            "Electrician",
 	            "Epaulet",
@@ -796,7 +796,7 @@ namespace STALK_IRC
 	            "Homer",
 	            "Hood",
 	            "Hook",
-	            "Horned_owl",
+	            "Horned owl",
 	            "Horse",
 	            "Hunchback",
 	            "Hybrid",
@@ -837,7 +837,7 @@ namespace STALK_IRC
 	            "Lemming",
 	            "Leshiy",
 	            "Lifeguard",
-	            "Little_Man",
+	            "Little Man",
 	            "Loader",
 	            "Local",
 	            "Lock",
@@ -937,7 +937,7 @@ namespace STALK_IRC
 	            "Plodder",
 	            "Plowman",
 	            "Poet",
-	            "Polar_explorer",
+	            "Polar explorer",
 	            "Porter",
 	            "Postman",
 	            "Prick",
@@ -983,7 +983,7 @@ namespace STALK_IRC
 	            "Rusty",
 	            "Ryazansky",
 	            "Samurai",
-	            "Sawn-off_gun",
+	            "Sawn-off gun",
 	            "Scholar",
 	            "Scoop",
 	            "Screw",
@@ -1034,7 +1034,7 @@ namespace STALK_IRC
 	            "Sultan",
 	            "Surgeon",
 	            "Susanin",
-	            "SWAT_officer",
+	            "SWAT officer",
 	            "Tail",
 	            "Tails",
 	            "Tambourine",
