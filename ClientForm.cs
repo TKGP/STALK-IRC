@@ -24,7 +24,7 @@ namespace STALK_IRC
     {
         // Constants
         private const string SERVER = "irc.slashnet.org";
-        private const string CHANNEL = "#STALK-IRC";
+        private const string CHANNEL = "#STALK-IRC_Testing";
         private const string INPUT = @"\STALK-IRC_input.txt";
         private const string OUTPUT = @"\STALK-IRC_output.txt";
         private const string SOCINPUT = @"\gamedata\config\misc\stalk_irc.ltx";
@@ -64,7 +64,7 @@ namespace STALK_IRC
 
             name = (string)REGISTRY.GetValue("Name", null);
             faction = Regex.Replace((string)REGISTRY.GetValue("Faction", "Loners"), " ", "");
-            timeout = (string)REGISTRY.GetValue("Timeout", "5000");
+            timeout = (string)REGISTRY.GetValue("Timeout", "10000");
             chatKey = (string)REGISTRY.GetValue("ChatKey", "DIK_APOSTROPHE");
             sendDeaths = (string)REGISTRY.GetValue("SendDeaths", "True") == "True";
             receiveDeaths = (string)REGISTRY.GetValue("ReceiveDeaths", "True") == "True";
@@ -73,7 +73,7 @@ namespace STALK_IRC
             SIStrings.Populate();
             if (name == null)
             {
-                name = SIStrings.GenerateName();
+                name = SIStrings.GenerateName().Replace(' ', '_');
                 REGISTRY.SetValue("Name", name);
             }
 
@@ -626,7 +626,7 @@ namespace STALK_IRC
                 case "help":
                 case "?":
                     if (forGame)
-                        return "Available commands: help - displays this message; who - lists all online users; msg [username] [message] - sends a private message to the specified user";
+                        return "Available commands:\\n\\thelp - displays this message\\n\twho - lists all online users\\n\\tmsg [username] [message] - sends a private message to the specified user";
                     else
                         AddClientLine("Available commands:\r\n\thelp - displays this message\r\n\twho - lists all online users\r\n\tmsg [username] [message] - sends a private message to the specified user", Color.DarkBlue);
                     break;
