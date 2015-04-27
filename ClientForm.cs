@@ -159,6 +159,11 @@ namespace STALK_IRC
             }
         }
 
+        private void richTextBox1_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            Process.Start(e.LinkText);
+        }
+
         // Checking for new games every 10 seconds
         private void timer1_Tick(object sender, EventArgs e)
         {
