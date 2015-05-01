@@ -39,7 +39,7 @@ namespace STALK_IRC
 
         static string RandomString(List<string> collection)
         {
-            return collection[rand.Next(collection.Count - 1)];
+            return collection[rand.Next(collection.Count)];
         }
 
         public static string BuildSentence(string name, string level, string section, string classType)
@@ -47,7 +47,7 @@ namespace STALK_IRC
             name = name.Replace('_', ' ');
             string levelText = (levelNames.ContainsKey(level) ? levelNames[level] : ("in the Zone (" + level + ")"));
             classType = classType.ToUpper();
-            if (classType == "DARK_STALKER" && rand.Next(1000) == 666) // :^)
+            if (classType == "DARK_STALKER" && rand.Next(1000) == 665) // :^)
                 return "Psssh... nothin personnel... kid...";
             string deathText;
             if (deathBySection.ContainsKey(section))
@@ -84,23 +84,26 @@ namespace STALK_IRC
                 "ClearSky",
                 "Mercenaries",
                 "Military",
-                "Monolith",
+                "Monolith"
             });
 
             validGames.AddRange(new string[]{
                 "SOC",
                 "CS",
                 "COP",
-                "LA",
+                "LA"
             });
 
             times.AddRange(new string[]{
                 "recently",
                 "a few minutes ago",
                 "just now",
+                "a moment ago",
+                "just a moment ago",
                 "a couple minutes ago",
+                "a couple of minutes ago",
                 "a short time ago",
-                "just recently",
+                "just recently"
             });
 
             observance.AddRange(new string[]{
@@ -111,6 +114,7 @@ namespace STALK_IRC
                 "word is",
                 "I've seen",
                 "I've noticed",
+                "seems"
             });
 
             suffixes.AddRange(new string[]{
@@ -137,7 +141,7 @@ namespace STALK_IRC
                 "That's what happens when you let your guard down.",
                 "Heh.",
                 "Oops!",
-                "I never liked him anyways.",
+                "I never liked him anyways."
             });
 
             // Shadow of Chernobyl
@@ -246,7 +250,7 @@ namespace STALK_IRC
             deathByClass["Z_RADIO"] = deathByClass["ZS_RADIO"];
             //deaths["Z_ZONE"] = "cse_alife_anomalous_zone";
             deathByClass["Z_CFIRE"] = "tripped and fell into a campfire";
-            deathByClass["Z_TORRID"] = deathByClass["ZS_TORRD"];
+            deathByClass["Z_TORRID"] = "got burned up by a comet";
             //deaths["Z_RUSTYH"] = "cse_alife_zone_visual";
             deathByClass["Z_AMEBA"] = deathByClass["ZS_BFUZZ"];
             deathByClass["S_EXPLO"] = "was blown apart by an explosion";
@@ -514,7 +518,7 @@ namespace STALK_IRC
 	            "Yury",
 	            "Zhenka",
 	            "Zhenya",
-	            "Zhora",
+	            "Zhora"
             });
 
             sNames.AddRange(new string[]{
@@ -1074,7 +1078,6 @@ namespace STALK_IRC
 	            "Voland",
 	            "Vulture",
 	            "Warrior",
-	            "Warrior",
 	            "Whiner",
 	            "Whip",
 	            "Whirlpool",
@@ -1086,11 +1089,10 @@ namespace STALK_IRC
 	            "Woodchuck",
 	            "Woodpecker",
 	            "Worm",
-	            "Worm",
 	            "Wrangler",
 	            "Wrinkled",
 	            "Yakker",
-	            "Zmur",
+	            "Zmur"
             });
         }
     }
