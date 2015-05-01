@@ -246,7 +246,7 @@ namespace STALK_IRC
             deathByClass["Z_RADIO"] = deathByClass["ZS_RADIO"];
             //deaths["Z_ZONE"] = "cse_alife_anomalous_zone";
             deathByClass["Z_CFIRE"] = "tripped and fell into a campfire";
-            //deaths["Z_TORRID"] = "cse_alife_torrid_zone";
+            deathByClass["Z_TORRID"] = deathByClass["ZS_TORRD"];
             //deaths["Z_RUSTYH"] = "cse_alife_zone_visual";
             deathByClass["Z_AMEBA"] = deathByClass["ZS_BFUZZ"];
             deathByClass["S_EXPLO"] = "was blown apart by an explosion";
