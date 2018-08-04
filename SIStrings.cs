@@ -308,8 +308,8 @@ namespace STALK_IRC
 
             // STALKERSOUP - aka Kostya's et al
             levelNames["atp_for_test22"] = "at the ATP";
-            //levelNames["av_peshera"] = "";
-            //levelNames["aver"] = "";
+            levelNames["av_peshera"] = "in the Lair";
+            levelNames["aver"] = "at Aver";
             levelNames["cs_agroprom_underground"] = levelNames["l03u_agr_underground"];
             //levelNames["dead_forest"] = "";
             levelNames["dead_city"] = levelNames["la08_deadcity"];
@@ -377,7 +377,7 @@ namespace STALK_IRC
             levelNames["gz_yantar"] = levelNames["l08_yantar"];
 
             // SRP Mod 0.3 - no, not /that/ SRP
-            //levelNames["l12u_sarcofag2"] = "";
+            levelNames["l12u_sarcofag2"] = levelNames["l12u_control_monolith"];
 
             // HARDWARMOD
             //levelNames["arena"] = "";
@@ -387,7 +387,7 @@ namespace STALK_IRC
             levelNames["generator"] = levelNames["la13_generators"];
 
             // Miliyantar
-            //levelNames["miliyan"] = "";
+            levelNames["miliyan"] = "at Miliyantar";
 
             // Path in the Mist
             levelNames["level_bar"] = levelNames["l05_bar"];
@@ -400,7 +400,7 @@ namespace STALK_IRC
             //haha no
 
             // Valley of Whispers
-            //levelNames["sad"] = "";
+            levelNames["sad"] = "in the Valley of Whispers";
 
             // World of War
             //levelNames["zakordon"] = "";
@@ -410,6 +410,46 @@ namespace STALK_IRC
             levelNames["labx7"] = levelNames["la17u_labx7"];
             levelNames["prostranstvenniy_puzir"] = "in the Spatial Bubble";
             //levelNames["station_digger"] = "";
+
+            // Doppelganger
+            //levelNames["bar_gestapo"] = "";
+            levelNames["darkvalley_new"] = levelNames["l04_darkvalley"];
+            levelNames["darkvalley_old"] = levelNames["l04_darkvalley"];
+            //levelNames["erena"] = "";
+            //levelNames["escape_garbage_ogse"] = "";
+            //levelNames["kat"] = "";
+            //levelNames["katakombi_2er"] = "";
+            //levelNames["l10u_radar_bunker"] = "";
+            //levelNames["l15u_pripyat_und"] = "";
+            //levelNames["ler_bar"] = "";
+            //levelNames["maps_keepers"] = "";
+            //levelNames["m__esc"] = "";
+            //levelNames["pma_agrokat"] = "";
+            //levelNames["poligon_0"] = "";
+            //levelNames["poligon_o"] = "";
+            //levelNames["prigorod"] = "";
+            //levelNames["red"] = "";
+            //levelNames["rusty_valley"] = "";
+            //levelNames["swamp_old"] = "";
+            //levelNames["understation"] = "";
+            //levelNames["vex_reborn"] = "";
+            //levelNames["zavod_rostok"] = "";
+
+            // OGSE
+            levelNames["k01_darkscape_ogse"] = levelNames["la15_darkscape"];
+            levelNames["l09_deadcity_ogse"] = levelNames["la08_deadcity"];
+            levelNames["l13_generators_ogse"] = levelNames["la13_generators"];
+            //levelNames["l22_marsh"] = "";
+            levelNames["l23_x9"] = "in Lab X-9";
+
+            // OSLM+ Shadows
+            levelNames["l09_deadcity"] = levelNames["la08_deadcity"];
+            //levelNames["l10u_secret_lab"] = "";
+            levelNames["l13_generators"] = levelNames["la13_generators"];
+            //levelNames["l13u_warlab"] = "";
+
+            // Starting Point
+            //levelNames["ostrova"] = "";
             
 
             // Random stalker names from vanilla SoC

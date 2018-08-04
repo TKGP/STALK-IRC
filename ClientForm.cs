@@ -24,7 +24,7 @@ namespace STALK_IRC
     {
         // Constants
         private const string SERVER = "irc.slashnet.org";
-        private const string CHANNEL = "#STALK-IRC_Testing";
+        private const string CHANNEL = "#STALK-IRC";
         private const string INPUT = @"\STALK-IRC_input.txt";
         private const string OUTPUT = @"\STALK-IRC_output.txt";
         private const string SOCINPUT = @"\gamedata\config\misc\stalk_irc.ltx";
